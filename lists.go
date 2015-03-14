@@ -8,7 +8,7 @@ import (
 // until one is available.  Both the key and value are returned.
 // You may pass in more than 1 key and BLPop returns an element
 // from the first list with an available item.  Specify timeout
-// in seconds.   Returns ("","") on timeout or error.
+// in seconds.   Returns (godis.NIL, godis.NIL) on timeout or error.
 func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 	conn := g.pool.Get()
 	defer conn.Close()
@@ -21,7 +21,7 @@ func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error BLPOP %s\n", err)
-		return "", ""
+		return NIL, NIL
 	} else {
 		g.Error = nil
 		return retval[0], retval[1]
@@ -32,7 +32,7 @@ func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 // until one is available.  Both the key and value are returned.
 // You may pass in more than 1 key and BLPop returns an element
 // from the first list with an available item.  Specify timeout
-// in seconds.  Returns ("","") on timeout or error.
+// in seconds.  Returns (godis.NIL, godis.NIL) on timeout or error.
 func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
 	conn := g.pool.Get()
 	defer conn.Close()
@@ -45,7 +45,7 @@ func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error BRPOP %s\n", err)
-		return "", ""
+		return NIL, NIL
 	} else {
 		g.Error = nil
 		return retval[0], retval[1]
@@ -65,7 +65,7 @@ func (g *Godis) BRPopLPush(source, destination string, timeout int) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error BRPOPLPUSH %s\n", err)
-		return ""
+		return NIL
 	} else {
 		g.Error = nil
 		return retval
@@ -84,7 +84,7 @@ func (g *Godis) LIndex(key string, index int) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error LINDEX %s\n", err)
-		return ""
+		return NIL
 	} else {
 		g.Error = nil
 		return retval
@@ -134,6 +134,25 @@ func (g *Godis) LLen(key string) int {
 		g.Error = err
 		g.log.Printf("Error LLEN %s\n", err)
 		return 0
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// LPop remove and get the first element in a list.
+func (g *Godis) LPop(key string) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LPOP", key)
+	g.log.Printf("LPOP %s\n", key)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LPOP %s\n", err)
+		return NIL
 	} else {
 		g.Error = nil
 		return retval

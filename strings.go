@@ -165,7 +165,7 @@ func (g *Godis) DecrBy(key string, decrement int) int64 {
 	}
 }
 
-// Get the value of a key.  Return "" is key does not exist or upon error.  To
+// Get the value of a key.  Return godis.NIL if key does not exist or upon error.  To
 // tell the difference, look at godis.Error.
 func (g *Godis) Get(key string) string {
 	conn := g.pool.Get()
@@ -178,7 +178,7 @@ func (g *Godis) Get(key string) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error GET %s\n", err)
-		return ""
+		return NIL
 	} else {
 		g.Error = nil
 		return retval
@@ -217,7 +217,7 @@ func (g *Godis) GetRange(key string, start, end int) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error GETRANGE %s\n", err)
-		return ""
+		return NIL
 	} else {
 		g.Error = nil
 		return retval
@@ -236,7 +236,7 @@ func (g *Godis) GetSet(key, value string) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error GETSET %s\n", err)
-		return ""
+		return NIL
 	} else {
 		g.Error = nil
 		return retval
@@ -302,7 +302,7 @@ func (g *Godis) IncrByFloat(key string, value float64) float64 {
 	}
 }
 
-// MGet gets the values of all the given keys.  Returns "" if key does not exist.
+// MGet gets the values of all the given keys.
 func (g *Godis) MGet(keys ...interface{}) []string {
 	conn := g.pool.Get()
 	defer conn.Close()

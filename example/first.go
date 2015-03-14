@@ -35,4 +35,5 @@ func main() {
 	// fmt.Println("BLPOP key:", key, " val:", val)
 	// fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
 	// fmt.Println("LINSERT:", redis.LInsertBefore("list2", "four", "five"))
+	//fmt.Println("LPOP", redis.LPop("list2"))
 }

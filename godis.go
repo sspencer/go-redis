@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	OK = "OK"
+	OK  = "OK"
+	NIL = "(*GODIS NIL TOKEN*)"
 )
 
 type Godis struct {
