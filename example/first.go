@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/sspencer/go-redis"
+	"time"
 )
 
 func main() {
 	redis := godis.NewGodis()
-	fmt.Println("Success:", redis.Set("message2", "godis starts"))
-	fmt.Println("Append Value:", redis.Append("message1", "!"))
-	fmt.Println("Value:", redis.Get("message1"))
+	redis.Set("message2", fmt.Sprintf("%v", time.Now()))
+	redis.Append("message1", "!")
+	fmt.Printf("Message1: %s\nMessage2: %s\n", redis.Get("message1"), redis.Get("message2"))
 }

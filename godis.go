@@ -2,6 +2,8 @@ package godis
 
 import (
 	"github.com/garyburd/redigo/redis"
+	"log"
+	"os"
 	"time"
 )
 
@@ -12,6 +14,7 @@ const (
 type Godis struct {
 	pool  *redis.Pool
 	Error error
+	log   *log.Logger
 }
 
 func newPool(server, password string) *redis.Pool {
@@ -40,7 +43,17 @@ func newPool(server, password string) *redis.Pool {
 
 func NewGodis() *Godis {
 	pool := newPool(":6379", "")
-	return &Godis{pool, nil}
+
+	/*
+		out, err := os.Create("/tmp/godis.log")
+		if nil != err {
+			panic(err.Error())
+		}
+	*/
+	out := os.Stderr
+
+	logger := log.New(out, "[GODIS] ", log.LstdFlags)
+	return &Godis{pool, nil, logger}
 }
 
 /*--------------------------------------------------------------
@@ -48,19 +61,20 @@ func NewGodis() *Godis {
  *--------------------------------------------------------------*/
 
 // Append a value to a key.  Returns the length of the new string or -1 on error.
-func (g *Godis) Append(key string, value string) int {
+func (g *Godis) Append(key string, value string) {
 	conn := g.pool.Get()
 	defer conn.Close()
 
-	r, err := conn.Do("APPEND", key, value)
+	reply, err := conn.Do("APPEND", key, value)
+	g.log.Printf("APPEND %s \"%s\"\n", key, value)
 
-	if value, err := redis.Int(r, err); err != nil {
+	// ignore return value (new string length) for now, may not be useful
+	if _, err := redis.Int(reply, err); err != nil {
 		// handle error
+		g.log.Printf("Error APPEND %s\n", err)
 		g.Error = err
-		return -1
 	} else {
 		g.Error = nil
-		return value
 	}
 }
 
@@ -70,31 +84,53 @@ func (g *Godis) Get(key string) string {
 	conn := g.pool.Get()
 	defer conn.Close()
 
-	r, err := conn.Do("GET", key)
+	reply, err := conn.Do("GET", key)
+	g.log.Printf("GET %s\n", key)
 
-	if value, err := redis.String(r, err); err != nil {
+	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
 		g.Error = err
+		g.log.Printf("Error GET %s\n", err)
 		return ""
 	} else {
 		g.Error = nil
-		return value
+		return retval
+	}
+}
+
+// Set the string value of a key and return its old value.
+//
+func (g *Godis) GetSet(key, value string) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("GETSET", key, value)
+	g.log.Printf("GETSET %s \"%s\"\n", key, value)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error GETSET %s\n", err)
+		return ""
+	} else {
+		g.Error = nil
+		return retval
 	}
 }
 
 // Set the string value of a key.
-func (g *Godis) Set(key string, value string) bool {
+func (g *Godis) Set(key string, value string) {
 	conn := g.pool.Get()
 	defer conn.Close()
 
-	r, err := conn.Do("SET", key, value)
+	reply, err := conn.Do("SET", key, value)
+	g.log.Printf("SET %s \"%s\"\n", key, value)
 
-	if value, err := redis.String(r, err); err != nil {
+	if _, err := redis.String(reply, err); err != nil {
 		// handle error
 		g.Error = err
-		return false
+		g.log.Printf("Error SET %s\n", err)
 	} else {
 		g.Error = nil
-		return value == OK
 	}
 }
