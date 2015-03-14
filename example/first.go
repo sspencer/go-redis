@@ -25,4 +25,5 @@ func main() {
 	fmt.Println("GETRANGE:", redis.GetRange("message1", 4, 10))
 	fmt.Println("INCR:", redis.Incr("mycounter"))
 	fmt.Println("INCRBY:", redis.IncrBy("mycounter", 3))
+	fmt.Printf("MGET: %#v\n", redis.MGet("message1", "mycount", "doesnotexist", "message2"))
 }

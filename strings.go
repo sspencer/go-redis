@@ -300,6 +300,25 @@ func (g *Godis) IncrByFloat(key string, value float64) float64 {
 	}
 }
 
+// MGet gets the values of all the given keys.  Returns "" if key does not exist.
+func (g *Godis) MGet(keys ...interface{}) []string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("MGET", keys...)
+	g.log.Printf("MGET %v", keys)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error MGET %s\n", err)
+		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // MSetNX sets multiple keys to multiple values, only if none of the keys already exist.
 func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 	conn := g.pool.Get()
@@ -311,13 +330,12 @@ func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
 		g.Error = err
-		g.log.Printf("Error MULTIPLE %s\n", err)
+		g.log.Printf("Error MSETNX %s\n", err)
 		return false
 	} else {
 		g.Error = nil
 		return !(retval == 0)
 	}
-
 }
 
 // Set the string value of a key.
