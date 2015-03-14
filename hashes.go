@@ -144,6 +144,25 @@ func (g *Godis) HKeys(key string) []string {
 	}
 }
 
+// HLen gets the number of fields in a hash
+func (g *Godis) HLen(key string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HLen", key)
+	g.log.Printf("HLen %s\n", key)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HLen %s\n", err)
+		return 0
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
 	conn := g.pool.Get()
