@@ -142,3 +142,24 @@ func (g *Godis) SIsMember(key, member string) bool {
 		return retval == 1
 	}
 }
+
+// SMembers returns all members in a set
+func (g *Godis) SMembers(key string) []string {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SMEMBERS", key)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.log.Printf("Error SMEMBERS %s\n", err)
+		return []string{}
+	} else {
+		return retval
+	}
+}
