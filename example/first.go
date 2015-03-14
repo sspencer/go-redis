@@ -27,5 +27,7 @@ func main() {
 	fmt.Println("INCRBY:", redis.IncrBy("mycounter", 3))
 	fmt.Printf("MGET: %#v\n", redis.MGet("message1", "mycount", "doesnotexist", "message2"))
 	fmt.Println("MSET:", redis.MSet("my1", "one", "my2", "two", "my3", 3))
-	fmt.Println("PSETEX:", redis.PSetEx("tempstore", 1800, "this will go away"))
+	fmt.Println("PSETEX:", redis.PSetEX("tempstore", 10000, "this will go away in 10,000 millis"))
+	fmt.Println("SETEX:", redis.SetEX("tempstore2", 10, "this will go away in 10 seconds"))
+	fmt.Println("SETNX:", redis.SetNX("tempstore2", "already set"))
 }

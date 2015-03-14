@@ -359,8 +359,8 @@ func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 	}
 }
 
-// Set the string value of a key.
-func (g *Godis) PSetEx(key string, millis int, value string) bool {
+// Set the string value of a key with an expiration time in milliseconds.
+func (g *Godis) PSetEX(key string, millis int, value string) bool {
 	conn := g.pool.Get()
 	defer conn.Close()
 
@@ -414,6 +414,44 @@ func (g *Godis) SetBit(key string, offset, value int) int {
 	} else {
 		g.Error = nil
 		return retval
+	}
+}
+
+// Set the string value of a key with an expiration time in seconds.
+func (g *Godis) SetEX(key string, seconds int, value string) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("SETEX", key, seconds, value)
+	g.log.Printf("SETEX %s %d \"%s\"\n", key, seconds, value)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error SETEX %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval == OK
+	}
+}
+
+// Set the string value of a key.
+func (g *Godis) SetNX(key string, value string) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("SETNX", key, value)
+	g.log.Printf("SETNX %s \"%s\"\n", key, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error SETNX %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval == 1
 	}
 }
 
