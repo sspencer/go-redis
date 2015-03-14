@@ -158,3 +158,46 @@ func (g *Godis) LPop(key string) string {
 		return retval
 	}
 }
+
+// LPush prepends one or more items to a list and returns the length
+// of the list after the operation.
+func (g *Godis) LPush(key string, values ...interface{}) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	keyarg := make([]interface{}, 1)
+	keyarg[0] = key
+	args := append(keyarg, values...)
+	reply, err := conn.Do("LPUSH", args...)
+	g.log.Printf("LPUSH %v\n", args)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LPUSH %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// LPushX prepends a value to a list, only if the list exists.  Returns the length
+// of the list after the operation.
+func (g *Godis) LPushX(key, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LPUSHX", key, value)
+	g.log.Printf("LPUSHX %s %s\n", key, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LPUSHX %s\n", err)
+		return 0
+	} else {
+		g.Error = nil
+		return retval
+	}
+}

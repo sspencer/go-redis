@@ -36,4 +36,6 @@ func main() {
 	// fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
 	// fmt.Println("LINSERT:", redis.LInsertBefore("list2", "four", "five"))
 	//fmt.Println("LPOP", redis.LPop("list2"))
+	fmt.Println("LPUSH:", redis.LPush("list3", "one", "two", "three"))
+	fmt.Println("LPUSHX:", redis.LPushX("list30000", "zero"))
 }
