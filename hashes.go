@@ -207,6 +207,50 @@ func (g *Godis) HMSet(key string, fieldvals ...interface{}) bool {
 	}
 }
 
+// HSet sets the string value of a hash field.
+// Returns 1 if field is a new field in the hash and value was set.
+// Returns 0 if field already exists in the hash and the value was updated.
+// Returns -1 on error.
+func (g *Godis) HSet(key, field, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HSET", key, field, value)
+	g.log.Printf("HSET %s %s %s\n", key, field, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HSET %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// HSetNX sets the string value of a hash field if the field does not already exist.
+// Returns 1 if field is a new field in the hash and value was set.
+// Returns 0 if field already exists in the hash and no operation was performed.
+// Returns -1 on error.
+func (g *Godis) HSetNX(key, field, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HSETNX", key, field, value)
+	g.log.Printf("HSETNX %s %s %s\n", key, field, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HSETNX %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
 	conn := g.pool.Get()
