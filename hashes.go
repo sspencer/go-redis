@@ -65,6 +65,27 @@ func (g *Godis) HGet(key, field string) string {
 	}
 }
 
+// HGetAll gets all the fields of values in a hash and returns in as
+// a map
+func (g *Godis) HGetAll(key string) map[string]string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HGETALL", key)
+	g.log.Printf("HGETALL %s\n", key)
+
+	if retval, err := redis.StringMap(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HGETALL %s\n", err)
+		return make(map[string]string)
+
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // HIncrBy increments the integer value of a hash field by the given number.  Returns math.MinInt64
 // on error.
 func (g *Godis) HIncrBy(key, field string, increment int) int64 {
