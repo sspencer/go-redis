@@ -23,6 +23,27 @@ func (g *Godis) Append(key string, value string) {
 	}
 }
 
+// BitCount counts the number of set bits in a string.
+// Function can be invoked with a variable number of parameters:
+// BITCOUNT key [start end]
+func (g *Godis) BitCount(args ...interface{}) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("BITCOUNT", args...)
+	g.log.Printf("BITCOUNT %v", args)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error BITCOUNT %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // BitPos returns the position of the first bit set to 1 or 0 in a string.
 // Function can be invoked with a variable number of parameters:
 // BITPOS key bit [start] [end]

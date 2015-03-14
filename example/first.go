@@ -16,4 +16,6 @@ func main() {
 	fmt.Printf("SETBIT:", redis.SetBit("mybit", 20, 1))
 	redis.SetRange("message2", 5, " ** 2015 **")
 	fmt.Println("BITPOS:", redis.BitPos("mybit", 1))
+	fmt.Println("LLEN:", redis.LLen("mylist"))
+	fmt.Println("BITCOUNT:", redis.BitCount("mybit"))
 }
