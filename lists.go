@@ -215,7 +215,7 @@ func (g *Godis) LRange(key string, start, stop int) []string {
 	reply, err := conn.Do("LRANGE", key, start, stop)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}

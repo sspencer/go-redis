@@ -19,6 +19,12 @@ type Godis struct {
 	log    *log.Logger
 }
 
+// When a Redis call has not results, return a shared empty variable.
+var (
+	EmptyValues  = make([]interface{}, 0)
+	EmptyStrings = []string{}
+)
+
 type dialer func() (redis.Conn, error)
 
 func newDialer(server, password string, logger *log.Logger) dialer {

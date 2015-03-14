@@ -138,7 +138,7 @@ func (g *Godis) HKeys(key string) []string {
 	reply, err := conn.Do("HKEYS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}
@@ -179,7 +179,7 @@ func (g *Godis) HMGet(key string, fields ...interface{}) []string {
 	reply, err := conn.Do("HMGET", args...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}
@@ -264,7 +264,7 @@ func (g *Godis) HVals(key string) []string {
 	reply, err := conn.Do("HVALS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}

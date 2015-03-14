@@ -315,7 +315,7 @@ func (g *Godis) MGet(keys ...interface{}) []string {
 	reply, err := conn.Do("MGET", keys...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}

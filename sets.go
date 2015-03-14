@@ -61,7 +61,7 @@ func (g *Godis) setOp(cmd, key string, keys ...interface{}) []string {
 	reply, err := conn.Do(cmd, args...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}
@@ -146,7 +146,7 @@ func (g *Godis) SMembers(key string) []string {
 	reply, err := conn.Do("SMEMBERS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return []string{}
+		return EmptyStrings
 	} else {
 		return retval
 	}
