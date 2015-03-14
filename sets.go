@@ -163,3 +163,25 @@ func (g *Godis) SMembers(key string) []string {
 		return retval
 	}
 }
+
+// SMove moves an element from one list to another.  Returns true if element
+// was moved, false if element is not a member of source and no operation was performed.
+func (g *Godis) SMove(source, destination, member string) bool {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SMOVE", source, destination, member)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.log.Printf("Error SMOVE %s\n", err)
+		return false
+	} else {
+		return retval == 1
+	}
+}

@@ -18,4 +18,5 @@ func main() {
 	fmt.Println("SISMEMBER true:", redis.SIsMember("myset", "one"))
 	fmt.Println("SISMEMBER false:", redis.SIsMember("myset", "whatever"))
 	fmt.Println("SMEMBERS:", redis.SMembers("myset"))
+	fmt.Println("SMOVE:", redis.SMove("myset2", "myset", "hello"))
 }
