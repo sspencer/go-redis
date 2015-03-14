@@ -3,6 +3,7 @@ package godis
 import (
 	"github.com/garyburd/redigo/redis"
 	"log"
+	"math"
 	"os"
 	"time"
 )
@@ -116,6 +117,45 @@ func (g *Godis) GetSet(key, value string) string {
 		g.Error = nil
 		return retval
 	}
+}
+
+// Increment the float value of a key by the given amount.  Return math.MaxFloat64 on error.
+func (g *Godis) IncrByFloat(key string, value float64) float64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("INCRBYFLOAT", key, value)
+	g.log.Printf("INCRBYFLOAT %s \"%f\"\n", key, value)
+
+	if retval, err := redis.Float64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error INCRBYFLOAT %s\n", err)
+		return math.MaxFloat64
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// MSetNX sets multiple keys to multiple values, only if none of the keys already exist.
+func (g *Godis) MSetNX(keyvals ...interface{}) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("MSETNX", keyvals...)
+	g.log.Printf("MSETNX %v", keyvals)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error MULTIPLE %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return !(retval == 0)
+	}
+
 }
 
 // Set the string value of a key.
