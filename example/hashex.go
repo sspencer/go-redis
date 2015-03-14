@@ -10,4 +10,6 @@ func main() {
 	fmt.Println("HGET:", redis.HGet("track123", "title"))
 	fmt.Println("HDEL:", redis.HDel("track123", "these", "do", "not", "exist"))
 	fmt.Println("HEXISTS:", redis.HExists("track123", "artist"))
+	fmt.Println("HINCRBY:", redis.HIncrBy("track123", "plays", 1))
+	fmt.Println("HINCRBYFLOAT:", redis.HIncrByFloat("track123", "share", 0.001))
 }

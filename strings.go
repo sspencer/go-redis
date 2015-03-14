@@ -283,7 +283,7 @@ func (g *Godis) IncrBy(key string, increment int) int64 {
 	}
 }
 
-// Increment the float value of a key by the given amount.  Return math.MaxFloat64 on error.
+// IncrByFloat increments the float value of a key by the given amount.  Return math.MaxFloat64 on error.
 func (g *Godis) IncrByFloat(key string, value float64) float64 {
 	conn := g.pool.Get()
 	defer conn.Close()

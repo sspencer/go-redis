@@ -2,6 +2,7 @@ package godis
 
 import (
 	"github.com/garyburd/redigo/redis"
+	"math"
 )
 
 // HDel deletes one of more hash fields.
@@ -58,6 +59,45 @@ func (g *Godis) HGet(key, field string) string {
 		g.Error = err
 		g.log.Printf("Error HGET %s\n", err)
 		return NIL
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// HIncrBy increments the integer value of a hash field by the given number.  Returns math.MinInt64
+// on error.
+func (g *Godis) HIncrBy(key, field string, increment int) int64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HINCRBY", key, field, increment)
+	g.log.Printf("HINCRBY %s %s %d\n", key, field, increment)
+
+	if retval, err := redis.Int64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HINCRBY %s\n", err)
+		return math.MaxInt64
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// HIncrByFloat increments the float value of a key by the given amount.  Return math.MaxFloat64 on error.
+func (g *Godis) HIncrByFloat(key, field string, value float64) float64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HINCRBYFLOAT", key, field, value)
+	g.log.Printf("HINCRBYFLOAT %s %s \"%f\"\n", key, field, value)
+
+	if retval, err := redis.Float64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HINCRBYFLOAT %s\n", err)
+		return math.MaxFloat64
 	} else {
 		g.Error = nil
 		return retval
