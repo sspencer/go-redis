@@ -203,6 +203,25 @@ func (g *Godis) GetBit(key string, offset int) int {
 	}
 }
 
+// Get a substring of the string stored at key.
+func (g *Godis) GetRange(key string, start, end int) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("GETRANGE", key, start, end)
+	g.log.Printf("GETRANGE %s %d %d\n", key, start, end)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error GETRANGE %s\n", err)
+		return ""
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // Set the string value of a key and return its old value.
 func (g *Godis) GetSet(key, value string) string {
 	conn := g.pool.Get()
