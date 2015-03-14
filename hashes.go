@@ -163,6 +163,28 @@ func (g *Godis) HLen(key string) int {
 	}
 }
 
+// HMGet gets the values of all the given hash fields.
+func (g *Godis) HMGet(key string, fields ...interface{}) []string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	keyarg := make([]interface{}, 1)
+	keyarg[0] = key
+	args := append(keyarg, fields...)
+	reply, err := conn.Do("HMGET", args...)
+	g.log.Printf("HMGET %v\n", args)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HMGET %s\n", err)
+		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
 	conn := g.pool.Get()
