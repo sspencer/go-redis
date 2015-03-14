@@ -21,5 +21,4 @@ func main() {
 	fmt.Println("BITOP:", redis.BitOpOr("newbits", "mybit", "myotherbit"))
 	fmt.Println("DECR:", redis.Decr("mycounter"))
 	fmt.Println("DECRBY:", redis.DecrBy("mycounter", 3))
-	fmt.Println("GETBIT:", redis.GetBit("mybit", 16))
 }
