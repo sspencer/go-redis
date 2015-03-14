@@ -28,3 +28,24 @@ func (g *Godis) SAdd(key string, members ...interface{}) int {
 		return retval
 	}
 }
+
+// SCard returns the number of members in a set.
+func (g *Godis) SCard(key string) int {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SCARD", key)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.log.Printf("Error SCARD %s\n", err)
+		return 0
+	} else {
+		return retval
+	}
+}

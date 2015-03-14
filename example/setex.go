@@ -9,4 +9,5 @@ import (
 func main() {
 	redis := godis.NewGodisConn(":6379", "", os.Stderr)
 	fmt.Println("SADD:", redis.SAdd("myset", "one", "two", "three"))
+	fmt.Println("SCARD:", redis.SCard("myset"))
 }
