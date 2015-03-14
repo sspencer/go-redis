@@ -174,3 +174,23 @@ func (g *Godis) Set(key string, value string) {
 		g.Error = nil
 	}
 }
+
+// SetBit sets or clears the bit at offset in the string value stored at key.
+// Returns -1 on error.
+func (g *Godis) SetBit(key string, offset, value int) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("SETBIT", key, offset, value)
+	g.log.Printf("SETBIT %s %d %d\n", key, offset, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error SETBIT %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
