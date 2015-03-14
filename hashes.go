@@ -143,3 +143,22 @@ func (g *Godis) HKeys(key string) []string {
 		return retval
 	}
 }
+
+// HVals gets all the field values in a hash
+func (g *Godis) HVals(key string) []string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HVALS", key)
+	g.log.Printf("HVALS %s\n", key)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HVALS %s\n", err)
+		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
