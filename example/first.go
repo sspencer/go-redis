@@ -32,8 +32,9 @@ func main() {
 	fmt.Println("SETNX:", redis.SetNX("tempstore2", "already set"))
 	fmt.Println("STRELEN", redis.Strlen("message1"))
 	/*
-		key, val := redis.BLPop(60, "list1", "list2")
-		fmt.Println("BLPOP key:", key, " val:", val)
+				key, val := redis.BLPop(60, "list1", "list2")
+				fmt.Println("BLPOP key:", key, " val:", val)
+		        fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
 	*/
-	fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
+	fmt.Println("LINDEX:", redis.LIndex("list2", 1))
 }

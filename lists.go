@@ -72,6 +72,25 @@ func (g *Godis) BRPopLPush(source, destination string, timeout int) string {
 	}
 }
 
+// LIndex gets an element from a list by its index.
+func (g *Godis) LIndex(key string, index int) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LINDEX", key, index)
+	g.log.Printf("LINDEX %s %d\n", key, index)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LINDEX %s\n", err)
+		return ""
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // LLen gets the length of a list.
 func (g *Godis) LLen(key string) int {
 	conn := g.pool.Get()
