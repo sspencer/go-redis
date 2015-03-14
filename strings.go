@@ -183,8 +183,27 @@ func (g *Godis) Get(key string) string {
 	}
 }
 
+// GetBit returns the bit value at offset in the value stored at key.
+// Returns -1 on error.
+func (g *Godis) GetBit(key string, offset int) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("GETBIT", key, offset)
+	g.log.Printf("GETBIT %s %d\n", key, offset)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error GETBIT %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // Set the string value of a key and return its old value.
-//
 func (g *Godis) GetSet(key, value string) string {
 	conn := g.pool.Get()
 	defer conn.Close()
