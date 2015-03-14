@@ -91,6 +91,36 @@ func (g *Godis) LIndex(key string, index int) string {
 	}
 }
 
+func (g *Godis) linsert(key, location, pivot, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LINSERT", key, location, pivot, value)
+	g.log.Printf("LINSERT %s %s %s %s\n", key, location, pivot, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LINSERT %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// LInsertAfter inserts an element after another element in a list. Returns list length
+// or -1 if no item was inserted.
+func (g *Godis) LInsertAfter(key, pivot, value string) int {
+	return g.linsert(key, "AFTER", pivot, value)
+}
+
+// LInsertAfter inserts an element before another element in a list.  Returns list length
+// or -1 if no item was inserted.
+func (g *Godis) LInsertBefore(key, pivot, value string) int {
+	return g.linsert(key, "BEFORE", pivot, value)
+}
+
 // LLen gets the length of a list.
 func (g *Godis) LLen(key string) int {
 	conn := g.pool.Get()
