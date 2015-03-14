@@ -202,6 +202,26 @@ func (g *Godis) LPushX(key, value string) int {
 	}
 }
 
+// LRange gets a range of elements from a list.
+
+func (g *Godis) LRange(key string, start, stop int) []string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LRANGE", key, start, stop)
+	g.log.Printf("LRANGE %s %d %d\n", key, start, stop)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LRANGE %s\n", err)
+		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // RPush appends one or more items to a list and returns the length
 // of the list after the operation.
 func (g *Godis) RPush(key string, values ...interface{}) int {
