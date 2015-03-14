@@ -40,5 +40,6 @@ func main() {
 	fmt.Println("LPUSHX:", redis.LPushX("list30000", "zero"))
 	fmt.Println("RPUSH:", redis.RPush("list3", "one hundred", "two hundred", "three hundred"))
 	fmt.Println("RPUSHX:", redis.RPushX("list30000", "zero"))
-	fmt.Println("LRANGE:", redis.LRange("list3", 0, 5))
+	fmt.Println("LREM:", redis.LRem("list3", 0, "two"))
+	fmt.Println("LRANGE:", redis.LRange("list3", 0, -1))
 }

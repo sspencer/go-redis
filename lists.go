@@ -203,7 +203,6 @@ func (g *Godis) LPushX(key, value string) int {
 }
 
 // LRange gets a range of elements from a list.
-
 func (g *Godis) LRange(key string, start, stop int) []string {
 	conn := g.pool.Get()
 	defer conn.Close()
@@ -216,6 +215,25 @@ func (g *Godis) LRange(key string, start, stop int) []string {
 		g.Error = err
 		g.log.Printf("Error LRANGE %s\n", err)
 		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// LRem removes elements from a list.  Returns the number of removed elements.
+func (g *Godis) LRem(key string, count int, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LREM", key, count, value)
+	g.log.Printf("LREM %s %d %s\n", key, count, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LREM %s\n", err)
+		return 0
 	} else {
 		g.Error = nil
 		return retval
