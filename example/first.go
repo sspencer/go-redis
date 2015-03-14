@@ -31,4 +31,8 @@ func main() {
 	fmt.Println("SETEX:", redis.SetEX("tempstore2", 10, "this will go away in 10 seconds"))
 	fmt.Println("SETNX:", redis.SetNX("tempstore2", "already set"))
 	fmt.Println("STRELEN", redis.Strlen("message1"))
+	/*
+		key, val := redis.BLPop(60, "list1", "list2")
+		fmt.Println("BLPOP key:", key, " val:", val)
+	*/
 }
