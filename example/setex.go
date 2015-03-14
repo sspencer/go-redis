@@ -15,4 +15,6 @@ func main() {
 	fmt.Println("SDIFFSTORE:", redis.SDiffStore("mynewset", "myset", "myset2"))
 	fmt.Println("SINTER:", redis.SInter("myset", "myset2"))
 	fmt.Println("SINTERSTORE:", redis.SInterStore("mynewset", "myset", "myset2"))
+	fmt.Println("SISMEMBER true:", redis.SIsMember("myset", "one"))
+	fmt.Println("SISMEMBER false:", redis.SIsMember("myset", "whatever"))
 }

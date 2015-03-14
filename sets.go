@@ -121,3 +121,24 @@ func (g *Godis) SInter(key string, keys ...interface{}) []string {
 func (g *Godis) SInterStore(destination, key string, keys ...interface{}) int {
 	return g.setOpStore("SINTERSTORE", destination, key, keys...)
 }
+
+// SIsMember returns if a member is a member of the set stored at key
+func (g *Godis) SIsMember(key, member string) bool {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SISMEMBER", key, member)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.log.Printf("Error SISMEMBER %s\n", err)
+		return false
+	} else {
+		return retval == 1
+	}
+}
