@@ -436,7 +436,7 @@ func (g *Godis) SetEX(key string, seconds int, value string) bool {
 	}
 }
 
-// Set the string value of a key.
+// Set the string value of a key if the key does not already exist.
 func (g *Godis) SetNX(key string, value string) bool {
 	conn := g.pool.Get()
 	defer conn.Close()
@@ -467,6 +467,25 @@ func (g *Godis) SetRange(key string, offset int, value string) int {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error SETRANGE %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// Strlen returns the length of the value stored at key.
+func (g *Godis) Strlen(key string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("STRLEN", key)
+	g.log.Printf("STRLEN %s\n", key)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error STRLEN %s\n", err)
 		return -1
 	} else {
 		g.Error = nil

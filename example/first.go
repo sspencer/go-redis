@@ -30,4 +30,5 @@ func main() {
 	fmt.Println("PSETEX:", redis.PSetEX("tempstore", 10000, "this will go away in 10,000 millis"))
 	fmt.Println("SETEX:", redis.SetEX("tempstore2", 10, "this will go away in 10 seconds"))
 	fmt.Println("SETNX:", redis.SetNX("tempstore2", "already set"))
+	fmt.Println("STRELEN", redis.Strlen("message1"))
 }
