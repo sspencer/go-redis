@@ -259,6 +259,25 @@ func (g *Godis) LSet(key string, index int, value string) bool {
 	}
 }
 
+// LTrim trims a list to the specified range
+func (g *Godis) LTrim(key string, start, stop int) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LTRIM", key, start, stop)
+	g.log.Printf("LTRIM %s %d %d\n", key, start, stop)
+
+	if retval, err := redis.Bool(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LTRIM %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // RPush appends one or more items to a list and returns the length
 // of the list after the operation.
 func (g *Godis) RPush(key string, values ...interface{}) int {
