@@ -35,4 +35,5 @@ func main() {
 		key, val := redis.BLPop(60, "list1", "list2")
 		fmt.Println("BLPOP key:", key, " val:", val)
 	*/
+	fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
 }

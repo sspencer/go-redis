@@ -52,6 +52,26 @@ func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
 	}
 }
 
+// BRPopLPush pops a value from the source list, pushes it onto destination and
+// returns that list element.  Blocks until timeout or element is available.
+func (g *Godis) BRPopLPush(source, destination string, timeout int) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("BRPOPLPUSH", source, destination, timeout)
+	g.log.Printf("BRPOPLPUSH %s %s %s\n", source, destination, timeout)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error BRPOPLPUSH %s\n", err)
+		return ""
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // LLen gets the length of a list.
 func (g *Godis) LLen(key string) int {
 	conn := g.pool.Get()
