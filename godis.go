@@ -1,6 +1,7 @@
 package godis
 
 import (
+	"fmt"
 	"github.com/garyburd/redigo/redis"
 	"io"
 	"log"
@@ -19,10 +20,20 @@ type Godis struct {
 	log    *log.Logger
 }
 
+type ScoreMember struct {
+	score  float32
+	member string
+}
+
+func (m ScoreMember) String() string {
+	return fmt.Sprintf("(%s:%0.2f)", m.member, m.score)
+}
+
 // When a Redis call has not results, return a shared empty variable.
 var (
-	EmptyValues  = make([]interface{}, 0)
-	EmptyStrings = []string{}
+	EmptyValues       = make([]interface{}, 0)
+	EmptyStrings      = []string{}
+	EmptyScoreMembers = []ScoreMember{}
 )
 
 type dialer func() (redis.Conn, error)
