@@ -17,4 +17,5 @@ func main() {
 	fmt.Println("HVALS:", redis.HVals("track123"))
 	fmt.Println("HLEN:", redis.HLen("track123"))
 	fmt.Println("HMGET:", redis.HMGet("track123", "artist", "title", "plays"))
+	fmt.Println("HMSET:", redis.HMSet("track124", "artist", "Natalia Clavier", "title", "Simple"))
 }

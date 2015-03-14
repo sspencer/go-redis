@@ -185,6 +185,28 @@ func (g *Godis) HMGet(key string, fields ...interface{}) []string {
 	}
 }
 
+// HMSet sets multiple hash fields to multiple values
+func (g *Godis) HMSet(key string, fieldvals ...interface{}) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	keyarg := make([]interface{}, 1)
+	keyarg[0] = key
+	args := append(keyarg, fieldvals...)
+	reply, err := conn.Do("HMSET", args...)
+	g.log.Printf("HMSET %v\n", args)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HMSET %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval == OK
+	}
+}
+
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
 	conn := g.pool.Get()
