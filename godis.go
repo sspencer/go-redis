@@ -194,3 +194,20 @@ func (g *Godis) SetBit(key string, offset, value int) int {
 		return retval
 	}
 }
+
+// SetRange overwrites part of a string at key starting at the specified offset.
+func (g *Godis) SetRange(key string, offset int, value string) {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("SETRANGE", key, offset, value)
+	g.log.Printf("SETRANGE %s %d \"%s\"\n", key, offset, value)
+
+	if _, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error SETRANGE %s\n", err)
+	} else {
+		g.Error = nil
+	}
+}
