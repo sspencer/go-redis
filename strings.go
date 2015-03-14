@@ -44,6 +44,64 @@ func (g *Godis) BitCount(args ...interface{}) int {
 	}
 }
 
+func (g *Godis) bitop(operation string, args ...interface{}) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	op := make([]interface{}, 1)
+	op[0] = operation
+	args = append(op, args...)
+
+	reply, err := conn.Do("BITOP", args...)
+	g.log.Printf("BITOP %v", args)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error BITOP %s %s\n", operation, err)
+		return 0
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// BitOp performs bitwise operations between strings.
+// More than 1 source key can be specified.  Returns
+// the size of the new key.
+// BITOP AND destkey srckey1 [srckey2 srckey3 ... srckeyN]
+func (g *Godis) BitOpAnd(args ...interface{}) int {
+	return g.bitop("AND", args...)
+}
+
+// BitOp performs bitwise operations between strings.
+// More than 1 source key can be specified.  Returns
+// the size of the new key.
+// BITOP OR destkey srckey1 [srckey2 srckey3 ... srckeyN]
+func (g *Godis) BitOpNot(destkey, srckey string) int {
+	args := make([]interface{}, 2)
+
+	args[0] = destkey
+	args[1] = srckey
+	return g.bitop("NOT", args...)
+}
+
+// BitOp performs bitwise operations between strings.
+// More than 1 source key can be specified.  Returns
+// the size of the new key.
+// BITOP OR destkey srckey1 [srckey2 srckey3 ... srckeyN]
+func (g *Godis) BitOpOr(args ...interface{}) int {
+	return g.bitop("OR", args...)
+}
+
+// BitOp performs bitwise operations between strings.
+// More than 1 source key can be specified.  Returns
+// the size of the new key.
+// BITOP OR destkey srckey1 [srckey2 srckey3 ... srckeyN]
+func (g *Godis) BitOpXor(args ...interface{}) int {
+	return g.bitop("XOR", args...)
+}
+
 // BitPos returns the position of the first bit set to 1 or 0 in a string.
 // Function can be invoked with a variable number of parameters:
 // BITPOS key bit [start] [end]
@@ -59,6 +117,46 @@ func (g *Godis) BitPos(args ...interface{}) int {
 		g.Error = err
 		g.log.Printf("Error BITPOS %s\n", err)
 		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// Decr decrements the integer value of a key by one.  Returns math.MaxInt64
+// on error.
+func (g *Godis) Decr(key string) int64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("DECR", key)
+	g.log.Printf("DECR %s\n", key)
+
+	if retval, err := redis.Int64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error DECR %s\n", err)
+		return math.MaxInt64
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// Decr decrements the integer value of a key by the given number.  Returns math.MaxInt64
+// on error.
+func (g *Godis) DecrBy(key string, decrement int) int64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("DECRBY", key, decrement)
+	g.log.Printf("DECRBY %s %d\n", key, decrement)
+
+	if retval, err := redis.Int64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error DECRBY %s\n", err)
+		return math.MaxInt64
 	} else {
 		g.Error = nil
 		return retval

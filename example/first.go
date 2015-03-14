@@ -18,4 +18,7 @@ func main() {
 	fmt.Println("BITPOS:", redis.BitPos("mybit", 1))
 	fmt.Println("LLEN:", redis.LLen("mylist"))
 	fmt.Println("BITCOUNT:", redis.BitCount("mybit"))
+	fmt.Println("BITOP:", redis.BitOpOr("newbits", "mybit", "myotherbit"))
+	fmt.Println("DECR:", redis.Decr("mycounter"))
+	fmt.Println("DECRBY:", redis.DecrBy("mycounter", 3))
 }
