@@ -32,13 +32,13 @@ func (g *Godis) HExists(key, field string) bool {
 	conn := g.pool.Get()
 	defer conn.Close()
 
-	reply, err := conn.Do("HExists", key, field)
-	g.log.Printf("HExists %s %s\n", key, field)
+	reply, err := conn.Do("HEXISTS", key, field)
+	g.log.Printf("HEXISTS %s %s\n", key, field)
 
 	if retval, err := redis.Bool(reply, err); err != nil {
 		// handle error
 		g.Error = err
-		g.log.Printf("Error HExists %s\n", err)
+		g.log.Printf("Error HEXISTS %s\n", err)
 		return false
 	} else {
 		g.Error = nil
@@ -250,6 +250,28 @@ func (g *Godis) HSetNX(key, field, value string) int {
 		return retval
 	}
 }
+
+/*
+Since 3.2.0
+// HStrlen gets the length of the value of a hash field.
+func (g *Godis) HStrlen(key, field string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HSTRLEN", key, field)
+	g.log.Printf("HSTRLEN %s %s\n", key, field)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HSTRLEN %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+*/
 
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
