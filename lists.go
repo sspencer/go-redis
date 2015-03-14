@@ -201,3 +201,46 @@ func (g *Godis) LPushX(key, value string) int {
 		return retval
 	}
 }
+
+// RPush appends one or more items to a list and returns the length
+// of the list after the operation.
+func (g *Godis) RPush(key string, values ...interface{}) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	keyarg := make([]interface{}, 1)
+	keyarg[0] = key
+	args := append(keyarg, values...)
+	reply, err := conn.Do("RPUSH", args...)
+	g.log.Printf("RPUSH %v\n", args)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error RPUSH %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// RPushX appends a value to a list, only if the list exists.  Returns the length
+// of the list after the operation.
+func (g *Godis) RPushX(key, value string) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("RPUSHX", key, value)
+	g.log.Printf("RPUSHX %s %s\n", key, value)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error RPUSHX %s\n", err)
+		return 0
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
