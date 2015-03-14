@@ -209,3 +209,26 @@ func (g *Godis) SRandMember(key string) string {
 		return retval
 	}
 }
+
+// SRem removes one or more members from a set and returns
+// the number of elements removed.
+func (g *Godis) SRem(key string, members ...interface{}) int {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	args := make([]interface{}, 1)
+	args[0] = key
+	args = append(args, members...)
+	reply, err := conn.Do("SREM", args...)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		return 0
+	} else {
+		return retval
+	}
+}

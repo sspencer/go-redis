@@ -21,4 +21,5 @@ func main() {
 	fmt.Println("SMOVE:", redis.SMove("myset2", "myset", "hello"))
 	fmt.Println("SPOP:", redis.SPop("myset2"))
 	fmt.Println("SRANDMEMBER:", redis.SRandMember("myset2"))
+	fmt.Println("SREM:", redis.SRem("myset2", "nothing", "to", "eat"))
 }
