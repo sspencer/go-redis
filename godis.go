@@ -79,6 +79,27 @@ func (g *Godis) Append(key string, value string) {
 	}
 }
 
+// BitPos returns the position of the first bit set to 1 or 0 in a string.
+// Function can be invoked with a variable number of parameters:
+// BITPOS key bit [start] [end]
+func (g *Godis) BitPos(args ...interface{}) int {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("BITPOS", args...)
+	g.log.Printf("BITPOS %v", args)
+
+	if retval, err := redis.Int(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error BITPOS %s\n", err)
+		return -1
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // Get the value of a key.  Return "" is key does not exist or upon error.  To
 // tell the difference, look at godis.Error.
 func (g *Godis) Get(key string) string {
