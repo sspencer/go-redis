@@ -28,9 +28,9 @@ func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 	}
 }
 
-// BLPop removes and gets the last element in a list or blocks
+// BRPop removes and gets the last element in a list or blocks
 // until one is available.  Both the key and value are returned.
-// You may pass in more than 1 key and BLPop returns an element
+// You may pass in more than 1 key and BRPop returns an element
 // from the first list with an available item.  Specify timeout
 // in seconds.  Returns (godis.NIL, godis.NIL) on timeout or error.
 func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
@@ -272,6 +272,25 @@ func (g *Godis) LTrim(key string, start, stop int) bool {
 		g.Error = err
 		g.log.Printf("Error LTRIM %s\n", err)
 		return false
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// RPop remove and get the last element in a list.
+func (g *Godis) RPop(key string) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("RPOP", key)
+	g.log.Printf("RPOP %s\n", key)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error RPOP %s\n", err)
+		return NIL
 	} else {
 		g.Error = nil
 		return retval

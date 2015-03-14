@@ -44,4 +44,5 @@ func main() {
 	fmt.Println("LSET:", redis.LSet("list3", 0, "front of list"))
 	fmt.Println("LTRIM:", redis.LTrim("list3", 0, 6))
 	fmt.Println("LRANGE:", redis.LRange("list3", 0, -1))
+	fmt.Println("RPOP:", redis.RPop("list3"))
 }
