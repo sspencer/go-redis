@@ -13,4 +13,6 @@ func main() {
 	fmt.Println("SCARD:", redis.SCard("myset"))
 	fmt.Println("SDIFF:", redis.SDiff("myset", "myset2"))
 	fmt.Println("SDIFFSTORE:", redis.SDiffStore("mynewset", "myset", "myset2"))
+	fmt.Println("SINTER:", redis.SInter("myset", "myset2"))
+	fmt.Println("SINTERSTORE:", redis.SInterStore("mynewset", "myset", "myset2"))
 }

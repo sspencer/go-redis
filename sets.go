@@ -50,9 +50,7 @@ func (g *Godis) SCard(key string) int {
 	}
 }
 
-// SDiff returns the members of the set resulting from the difference between
-// the first set and all the successive sets.
-func (g *Godis) SDiff(key string, keys ...interface{}) []string {
+func (g *Godis) setOp(cmd, key string, keys ...interface{}) []string {
 	var conn redis.Conn
 	if g.pooled {
 		conn = g.pool.Get()
@@ -64,21 +62,18 @@ func (g *Godis) SDiff(key string, keys ...interface{}) []string {
 	args := make([]interface{}, 1)
 	args[0] = key
 	args = append(args, keys...)
-	reply, err := conn.Do("SDIFF", args...)
+	reply, err := conn.Do(cmd, args...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
-		g.log.Printf("Error SDIFF %s\n", err)
+		g.log.Printf("Error %s %s\n", cmd, err)
 		return []string{}
 	} else {
 		return retval
 	}
 }
 
-// SDiffStore stores the members of the set resulting from the difference between
-// the first set and all the successive sets into destination and returns the count
-// of members in destination.
-func (g *Godis) SDiffStore(destination, key string, keys ...interface{}) int {
+func (g *Godis) setOpStore(cmd, destination, key string, keys ...interface{}) int {
 	var conn redis.Conn
 	if g.pooled {
 		conn = g.pool.Get()
@@ -91,13 +86,38 @@ func (g *Godis) SDiffStore(destination, key string, keys ...interface{}) int {
 	args[0] = destination
 	args[1] = key
 	args = append(args, keys...)
-	reply, err := conn.Do("SDIFFSTORE", args...)
+	reply, err := conn.Do(cmd, args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.log.Printf("Error SDIFFSTORE %s\n", err)
+		g.log.Printf("Error %s %s\n", cmd, err)
 		return 0
 	} else {
 		return retval
 	}
+}
+
+// SDiff returns the members of the set resulting from the difference between
+// the first set and all the successive sets.
+func (g *Godis) SDiff(key string, keys ...interface{}) []string {
+	return g.setOp("SDIFF", key, keys...)
+}
+
+// SDiffStore stores the members of the set resulting from the difference between
+// the first set and all the successive sets into destination and returns the count
+// of members in destination.
+func (g *Godis) SDiffStore(destination, key string, keys ...interface{}) int {
+	return g.setOpStore("SDIFFSTORE", destination, key, keys...)
+}
+
+// SInter returns the members of the set resulting from the intersection of all the
+// given sets.
+func (g *Godis) SInter(key string, keys ...interface{}) []string {
+	return g.setOp("SINTER", key, keys...)
+}
+
+// SInterStore stores the members of the set resulting from the intersection of all the
+// given sets into destination.
+func (g *Godis) SInterStore(destination, key string, keys ...interface{}) int {
+	return g.setOpStore("SINTERSTORE", destination, key, keys...)
 }
