@@ -21,8 +21,6 @@ func (g *Godis) SAdd(key string, members ...interface{}) int {
 	reply, err := conn.Do("SADD", args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error SADD %s\n", err)
 		return 0
 	} else {
 		return retval
@@ -42,8 +40,6 @@ func (g *Godis) SCard(key string) int {
 	reply, err := conn.Do("SCARD", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error SCARD %s\n", err)
 		return 0
 	} else {
 		return retval
@@ -65,8 +61,6 @@ func (g *Godis) setOp(cmd, key string, keys ...interface{}) []string {
 	reply, err := conn.Do(cmd, args...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error %s %s\n", cmd, err)
 		return []string{}
 	} else {
 		return retval
@@ -89,8 +83,6 @@ func (g *Godis) setOpStore(cmd, destination, key string, keys ...interface{}) in
 	reply, err := conn.Do(cmd, args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error %s %s\n", cmd, err)
 		return 0
 	} else {
 		return retval
@@ -135,8 +127,6 @@ func (g *Godis) SIsMember(key, member string) bool {
 	reply, err := conn.Do("SISMEMBER", key, member)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error SISMEMBER %s\n", err)
 		return false
 	} else {
 		return retval == 1
@@ -156,8 +146,6 @@ func (g *Godis) SMembers(key string) []string {
 	reply, err := conn.Do("SMEMBERS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error SMEMBERS %s\n", err)
 		return []string{}
 	} else {
 		return retval
@@ -178,10 +166,46 @@ func (g *Godis) SMove(source, destination, member string) bool {
 	reply, err := conn.Do("SMOVE", source, destination, member)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error SMOVE %s\n", err)
 		return false
 	} else {
 		return retval == 1
+	}
+}
+
+// SPop removes and returns one or more random members from a set.
+func (g *Godis) SPop(key string) string {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SPOP", key)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		return ""
+	} else {
+		return retval
+	}
+}
+
+// SRandMember returns a random member for a set
+func (g *Godis) SRandMember(key string) string {
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
+
+	reply, err := conn.Do("SRANDMEMBER", key)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		return ""
+	} else {
+		return retval
 	}
 }

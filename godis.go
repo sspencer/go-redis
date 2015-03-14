@@ -58,7 +58,7 @@ func newPool(server, password string, logger *log.Logger) *redis.Pool {
 
 func NewGodisPool(server, password string, w io.Writer) *Godis {
 
-	logger := log.New(w, "[GODIS]", log.LstdFlags)
+	logger := log.New(w, "", log.LstdFlags)
 	pool := newPool(server, password, logger)
 
 	return &Godis{true, nil, pool, logger}
@@ -66,7 +66,7 @@ func NewGodisPool(server, password string, w io.Writer) *Godis {
 
 func NewGodisConn(server, password string, w io.Writer) *Godis {
 
-	logger := log.New(w, "[GODIS]", log.LstdFlags)
+	logger := log.New(w, "", log.LstdFlags)
 	dial := newDialer(server, password, logger)
 	conn, err := dial()
 	if err != nil {
