@@ -240,6 +240,25 @@ func (g *Godis) LRem(key string, count int, value string) int {
 	}
 }
 
+// LSet sets the value of an element in a list by its index.
+func (g *Godis) LSet(key string, index int, value string) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("LSET", key, index, value)
+	g.log.Printf("LSET %s %d %s\n", key, index, value)
+
+	if retval, err := redis.Bool(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error LSET %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
 // RPush appends one or more items to a list and returns the length
 // of the list after the operation.
 func (g *Godis) RPush(key string, values ...interface{}) int {
