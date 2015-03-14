@@ -124,3 +124,22 @@ func (g *Godis) HIncrByFloat(key, field string, value float64) float64 {
 		return retval
 	}
 }
+
+// HKeys gets all the field names in a hash
+func (g *Godis) HKeys(key string) []string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("HKEYS", key)
+	g.log.Printf("HKEYS %s\n", key)
+
+	if retval, err := redis.Strings(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error HKEYS %s\n", err)
+		return []string{}
+	} else {
+		g.Error = nil
+		return retval
+	}
+}

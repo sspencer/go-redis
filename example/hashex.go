@@ -13,4 +13,5 @@ func main() {
 	fmt.Println("HINCRBY:", redis.HIncrBy("track123", "plays", 1))
 	fmt.Println("HINCRBYFLOAT:", redis.HIncrByFloat("track123", "share", 0.001))
 	fmt.Println("HGETALL:", redis.HGetAll("track123"))
+	fmt.Println("HKEYS:", redis.HKeys("track123"))
 }
