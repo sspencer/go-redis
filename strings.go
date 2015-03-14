@@ -319,6 +319,25 @@ func (g *Godis) MGet(keys ...interface{}) []string {
 	}
 }
 
+// MSet sets multiple keys to multiple values.
+func (g *Godis) MSet(keyvals ...interface{}) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("MSET", keyvals...)
+	g.log.Printf("MSET %v", keyvals)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error MSET %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval == OK
+	}
+}
+
 // MSetNX sets multiple keys to multiple values, only if none of the keys already exist.
 func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 	conn := g.pool.Get()

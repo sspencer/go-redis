@@ -26,4 +26,5 @@ func main() {
 	fmt.Println("INCR:", redis.Incr("mycounter"))
 	fmt.Println("INCRBY:", redis.IncrBy("mycounter", 3))
 	fmt.Printf("MGET: %#v\n", redis.MGet("message1", "mycount", "doesnotexist", "message2"))
+	fmt.Println("MSET:", redis.MSet("my1", "one", "my2", "two", "my3", 3))
 }
