@@ -6,7 +6,7 @@ import (
 )
 
 // Append a value to a key.  Returns the length of the new string or -1 on error.
-func (g *Godis) Append(key string, value string) {
+func (g *Godis) Append(key string, value string) int {
 	conn := g.pool.Get()
 	defer conn.Close()
 
@@ -14,12 +14,14 @@ func (g *Godis) Append(key string, value string) {
 	g.log.Printf("APPEND %s \"%s\"\n", key, value)
 
 	// ignore return value (new string length) for now, may not be useful
-	if _, err := redis.Int(reply, err); err != nil {
+	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
 		g.log.Printf("Error APPEND %s\n", err)
 		g.Error = err
+		return -1
 	} else {
 		g.Error = nil
+		return retval
 	}
 }
 
@@ -358,19 +360,40 @@ func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 }
 
 // Set the string value of a key.
-func (g *Godis) Set(key string, value string) {
+func (g *Godis) PSetEx(key string, millis int, value string) bool {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("PSETEX", key, millis, value)
+	g.log.Printf("PSETEX %s %d \"%s\"\n", key, millis, value)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error PSETEX %s\n", err)
+		return false
+	} else {
+		g.Error = nil
+		return retval == OK
+	}
+}
+
+// Set the string value of a key.
+func (g *Godis) Set(key string, value string) bool {
 	conn := g.pool.Get()
 	defer conn.Close()
 
 	reply, err := conn.Do("SET", key, value)
 	g.log.Printf("SET %s \"%s\"\n", key, value)
 
-	if _, err := redis.String(reply, err); err != nil {
+	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error SET %s\n", err)
+		return false
 	} else {
 		g.Error = nil
+		return retval == OK
 	}
 }
 
@@ -395,18 +418,20 @@ func (g *Godis) SetBit(key string, offset, value int) int {
 }
 
 // SetRange overwrites part of a string at key starting at the specified offset.
-func (g *Godis) SetRange(key string, offset int, value string) {
+func (g *Godis) SetRange(key string, offset int, value string) int {
 	conn := g.pool.Get()
 	defer conn.Close()
 
 	reply, err := conn.Do("SETRANGE", key, offset, value)
 	g.log.Printf("SETRANGE %s %d \"%s\"\n", key, offset, value)
 
-	if _, err := redis.Int(reply, err); err != nil {
+	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error SETRANGE %s\n", err)
+		return -1
 	} else {
 		g.Error = nil
+		return retval
 	}
 }
