@@ -45,4 +45,7 @@ func main() {
 	fmt.Println("LTRIM:", redis.LTrim("list3", 0, 6))
 	fmt.Println("LRANGE:", redis.LRange("list3", 0, -1))
 	fmt.Println("RPOP:", redis.RPop("list3"))
+	fmt.Println("LRANGE:", redis.LRange("list3", 0, -1))
+	fmt.Println("RPUSHLPOP:", redis.RPopLPush("list3", "list3"))
+	fmt.Println("LRANGE:", redis.LRange("list3", 0, -1))
 }

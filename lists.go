@@ -59,7 +59,7 @@ func (g *Godis) BRPopLPush(source, destination string, timeout int) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("BRPOPLPUSH", source, destination, timeout)
-	g.log.Printf("BRPOPLPUSH %s %s %s\n", source, destination, timeout)
+	g.log.Printf("BRPOPLPUSH %s %s %d\n", source, destination, timeout)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -290,6 +290,26 @@ func (g *Godis) RPop(key string) string {
 		// handle error
 		g.Error = err
 		g.log.Printf("Error RPOP %s\n", err)
+		return NIL
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// RPopLPush removes the last element ina list and prepends it to another list and returns it.
+// Can use the same list for both source and destination to process items in a circular fashion.
+func (g *Godis) RPopLPush(source, destination string) string {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("RPOPLPUSH", source, destination)
+	g.log.Printf("RPOPLPUSH %s %s\n", source, destination)
+
+	if retval, err := redis.String(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error RPOPLPUSH %s\n", err)
 		return NIL
 	} else {
 		g.Error = nil
