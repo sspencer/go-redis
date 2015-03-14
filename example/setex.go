@@ -22,4 +22,6 @@ func main() {
 	fmt.Println("SPOP:", redis.SPop("myset2"))
 	fmt.Println("SRANDMEMBER:", redis.SRandMember("myset2"))
 	fmt.Println("SREM:", redis.SRem("myset2", "nothing", "to", "eat"))
+	fmt.Println("SUNION:", redis.SUnion("myset", "myset2"))
+	fmt.Println("SUNIONSTORE:", redis.SUnionStore("myuset", "myset", "myset2"))
 }

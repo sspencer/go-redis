@@ -232,3 +232,15 @@ func (g *Godis) SRem(key string, members ...interface{}) int {
 		return retval
 	}
 }
+
+// SUnion returns the members of the set resulting from the union of all the given sets.
+func (g *Godis) SUnion(key string, keys ...interface{}) []string {
+	return g.setOp("SUNION", key, keys...)
+}
+
+// SUnionStore stores the members of the set resulting from the union between
+// the first set and all the successive sets into destination and returns the count
+// of members in destination.
+func (g *Godis) SUnionStore(destination, key string, keys ...interface{}) int {
+	return g.setOpStore("SUNIONSTORE", destination, key, keys...)
+}
