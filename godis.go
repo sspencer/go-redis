@@ -13,35 +13,42 @@ const (
 )
 
 type Godis struct {
-	pool  *redis.Pool
-	Error error
-	log   *log.Logger
+	pooled bool
+	conn   redis.Conn
+	pool   *redis.Pool
+	log    *log.Logger
+}
+
+type dialer func() (redis.Conn, error)
+
+func newDialer(server, password string, logger *log.Logger) dialer {
+	return func() (redis.Conn, error) {
+		c, err := redis.Dial("tcp", server)
+		if err != nil {
+			return nil, err
+		}
+		if len(password) > 0 {
+			if _, err := c.Do("AUTH", password); err != nil {
+				c.Close()
+				return nil, err
+			}
+		}
+
+		if logger != nil {
+			loggingConn := redis.NewLoggingConn(c, logger, "[GODIS] ")
+			return loggingConn, err
+		} else {
+			return c, err
+		}
+
+	}
 }
 
 func newPool(server, password string, logger *log.Logger) *redis.Pool {
 	return &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", server)
-			if err != nil {
-				return nil, err
-			}
-			if len(password) > 0 {
-				if _, err := c.Do("AUTH", password); err != nil {
-					c.Close()
-					return nil, err
-				}
-			}
-
-			if logger != nil {
-				loggingConn := redis.NewLoggingConn(c, logger, "[GODIS] ")
-				return loggingConn, err
-			} else {
-				return c, err
-			}
-
-		},
+		Dial:        newDialer(server, password, logger),
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
 			return err
@@ -49,10 +56,21 @@ func newPool(server, password string, logger *log.Logger) *redis.Pool {
 	}
 }
 
-func NewGodisPool(w io.Writer) *Godis {
+func NewGodisPool(server, password string, w io.Writer) *Godis {
 
 	logger := log.New(w, "[GODIS]", log.LstdFlags)
-	pool := newPool(":6379", "", logger)
+	pool := newPool(server, password, logger)
 
-	return &Godis{pool, nil, logger}
+	return &Godis{true, nil, pool, logger}
+}
+
+func NewGodisConn(server, password string, w io.Writer) *Godis {
+
+	logger := log.New(w, "[GODIS]", log.LstdFlags)
+	dial := newDialer(server, password, logger)
+	conn, err := dial()
+	if err != nil {
+		panic(err)
+	}
+	return &Godis{false, conn, nil, logger}
 }

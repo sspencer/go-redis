@@ -7,8 +7,13 @@ import (
 
 // Append a value to a key.  Returns the length of the new string or -1 on error.
 func (g *Godis) Append(key string, value string) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("APPEND", key, value)
 
@@ -16,10 +21,8 @@ func (g *Godis) Append(key string, value string) int {
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
 		g.log.Printf("Error APPEND %s\n", err)
-		g.Error = err
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -28,25 +31,33 @@ func (g *Godis) Append(key string, value string) int {
 // Function can be invoked with a variable number of parameters:
 // BITCOUNT key [start end]
 func (g *Godis) BitCount(args ...interface{}) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("BITCOUNT", args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error BITCOUNT %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 func (g *Godis) bitop(operation string, args ...interface{}) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	op := make([]interface{}, 1)
 	op[0] = operation
@@ -56,11 +67,9 @@ func (g *Godis) bitop(operation string, args ...interface{}) int {
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error BITOP %s %s\n", operation, err)
 		return 0
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -105,18 +114,21 @@ func (g *Godis) BitOpXor(args ...interface{}) int {
 // Function can be invoked with a variable number of parameters:
 // BITPOS key bit [start] [end]
 func (g *Godis) BitPos(args ...interface{}) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("BITPOS", args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error BITPOS %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -124,18 +136,21 @@ func (g *Godis) BitPos(args ...interface{}) int {
 // Decr decrements the integer value of a key by one.  Returns math.MaxInt64
 // on error.
 func (g *Godis) Decr(key string) int64 {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("DECR", key)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error DECR %s\n", err)
 		return math.MaxInt64
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -143,18 +158,21 @@ func (g *Godis) Decr(key string) int64 {
 // DecrBy decrements the integer value of a key by the given number.  Returns math.MaxInt64
 // on error.
 func (g *Godis) DecrBy(key string, decrement int) int64 {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("DECRBY", key, decrement)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error DECRBY %s\n", err)
 		return math.MaxInt64
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -162,18 +180,21 @@ func (g *Godis) DecrBy(key string, decrement int) int64 {
 // Get the value of a key.  Return godis.NIL if key does not exist or upon error.  To
 // tell the difference, look at godis.Error.
 func (g *Godis) Get(key string) string {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("GET", key)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error GET %s\n", err)
 		return NIL
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -181,54 +202,63 @@ func (g *Godis) Get(key string) string {
 // GetBit returns the bit value at offset in the value stored at key.
 // Returns -1 on error.
 func (g *Godis) GetBit(key string, offset int) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("GETBIT", key, offset)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error GETBIT %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // Get a substring of the string stored at key.
 func (g *Godis) GetRange(key string, start, end int) string {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("GETRANGE", key, start, end)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error GETRANGE %s\n", err)
 		return NIL
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // Set the string value of a key and return its old value.
 func (g *Godis) GetSet(key, value string) string {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("GETSET", key, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error GETSET %s\n", err)
 		return NIL
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -236,18 +266,21 @@ func (g *Godis) GetSet(key, value string) string {
 // Incr increments the integer value of a key by one.  Returns math.MinInt64
 // on error.
 func (g *Godis) Incr(key string) int64 {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("INCR", key)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error INCR %s\n", err)
 		return math.MinInt64
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
@@ -255,126 +288,147 @@ func (g *Godis) Incr(key string) int64 {
 // IncrBy increments the integer value of a key by the given number.  Returns math.MinInt64
 // on error.
 func (g *Godis) IncrBy(key string, increment int) int64 {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("INCRBY", key, increment)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error INCRBY %s\n", err)
 		return math.MaxInt64
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // IncrByFloat increments the float value of a key by the given amount.  Return math.MaxFloat64 on error.
 func (g *Godis) IncrByFloat(key string, value float64) float64 {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("INCRBYFLOAT", key, value)
 
 	if retval, err := redis.Float64(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error INCRBYFLOAT %s\n", err)
 		return math.MaxFloat64
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // MGet gets the values of all the given keys.
 func (g *Godis) MGet(keys ...interface{}) []string {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("MGET", keys...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error MGET %s\n", err)
 		return []string{}
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // MSet sets multiple keys to multiple values.
 func (g *Godis) MSet(keyvals ...interface{}) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("MSET", keyvals...)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error MSET %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return retval == OK
 	}
 }
 
 // MSetNX sets multiple keys to multiple values, only if none of the keys already exist.
 func (g *Godis) MSetNX(keyvals ...interface{}) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("MSETNX", keyvals...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error MSETNX %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return !(retval == 0)
 	}
 }
 
 // Set the string value of a key with an expiration time in milliseconds.
 func (g *Godis) PSetEX(key string, millis int, value string) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("PSETEX", key, millis, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error PSETEX %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return retval == OK
 	}
 }
 
 // Set the string value of a key.
 func (g *Godis) Set(key string, value string) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("SET", key, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error SET %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return retval == OK
 	}
 }
@@ -382,90 +436,105 @@ func (g *Godis) Set(key string, value string) bool {
 // SetBit sets or clears the bit at offset in the string value stored at key.
 // Returns -1 on error.
 func (g *Godis) SetBit(key string, offset, value int) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("SETBIT", key, offset, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error SETBIT %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // Set the string value of a key with an expiration time in seconds.
 func (g *Godis) SetEX(key string, seconds int, value string) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("SETEX", key, seconds, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error SETEX %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return retval == OK
 	}
 }
 
 // Set the string value of a key if the key does not already exist.
 func (g *Godis) SetNX(key string, value string) bool {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("SETNX", key, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error SETNX %s\n", err)
 		return false
 	} else {
-		g.Error = nil
 		return retval == 1
 	}
 }
 
 // SetRange overwrites part of a string at key starting at the specified offset.
 func (g *Godis) SetRange(key string, offset int, value string) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("SETRANGE", key, offset, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error SETRANGE %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
 
 // Strlen returns the length of the value stored at key.
 func (g *Godis) Strlen(key string) int {
-	conn := g.pool.Get()
-	defer conn.Close()
+	var conn redis.Conn
+	if g.pooled {
+		conn = g.pool.Get()
+		defer conn.Close()
+	} else {
+		conn = g.conn
+	}
 
 	reply, err := conn.Do("STRLEN", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
-		g.Error = err
 		g.log.Printf("Error STRLEN %s\n", err)
 		return -1
 	} else {
-		g.Error = nil
 		return retval
 	}
 }
