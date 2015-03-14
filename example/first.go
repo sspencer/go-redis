@@ -23,4 +23,6 @@ func main() {
 	fmt.Println("DECRBY:", redis.DecrBy("mycounter", 3))
 	fmt.Println("GETBIT:", redis.GetBit("mybit", 16))
 	fmt.Println("GETRANGE:", redis.GetRange("message1", 4, 10))
+	fmt.Println("INCR:", redis.Incr("mycounter"))
+	fmt.Println("INCRBY:", redis.IncrBy("mycounter", 3))
 }

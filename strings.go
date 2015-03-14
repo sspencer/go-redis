@@ -143,7 +143,7 @@ func (g *Godis) Decr(key string) int64 {
 	}
 }
 
-// Decr decrements the integer value of a key by the given number.  Returns math.MaxInt64
+// DecrBy decrements the integer value of a key by the given number.  Returns math.MaxInt64
 // on error.
 func (g *Godis) DecrBy(key string, decrement int) int64 {
 	conn := g.pool.Get()
@@ -235,6 +235,46 @@ func (g *Godis) GetSet(key, value string) string {
 		g.Error = err
 		g.log.Printf("Error GETSET %s\n", err)
 		return ""
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// Incr increments the integer value of a key by one.  Returns math.MinInt64
+// on error.
+func (g *Godis) Incr(key string) int64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("INCR", key)
+	g.log.Printf("INCR %s\n", key)
+
+	if retval, err := redis.Int64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error INCR %s\n", err)
+		return math.MinInt64
+	} else {
+		g.Error = nil
+		return retval
+	}
+}
+
+// IncrBy increments the integer value of a key by the given number.  Returns math.MinInt64
+// on error.
+func (g *Godis) IncrBy(key string, increment int) int64 {
+	conn := g.pool.Get()
+	defer conn.Close()
+
+	reply, err := conn.Do("INCRBY", key, increment)
+	g.log.Printf("INCRBY %s %d\n", key, increment)
+
+	if retval, err := redis.Int64(reply, err); err != nil {
+		// handle error
+		g.Error = err
+		g.log.Printf("Error INCRBY %s\n", err)
+		return math.MaxInt64
 	} else {
 		g.Error = nil
 		return retval
