@@ -2,8 +2,8 @@ package godis
 
 import (
 	"github.com/garyburd/redigo/redis"
+	"io"
 	"log"
-	"os"
 	"time"
 )
 
@@ -18,7 +18,7 @@ type Godis struct {
 	log   *log.Logger
 }
 
-func newPool(server, password string) *redis.Pool {
+func newPool(server, password string, logger *log.Logger) *redis.Pool {
 	return &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 240 * time.Second,
@@ -33,7 +33,14 @@ func newPool(server, password string) *redis.Pool {
 					return nil, err
 				}
 			}
-			return c, err
+
+			if logger != nil {
+				loggingConn := redis.NewLoggingConn(c, logger, "[GODIS] ")
+				return loggingConn, err
+			} else {
+				return c, err
+			}
+
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
@@ -42,17 +49,10 @@ func newPool(server, password string) *redis.Pool {
 	}
 }
 
-func NewGodis() *Godis {
-	pool := newPool(":6379", "")
+func NewGodisPool(w io.Writer) *Godis {
 
-	/*
-		out, err := os.Create("/tmp/godis.log")
-		if nil != err {
-			panic(err.Error())
-		}
-	*/
-	out := os.Stderr
+	logger := log.New(w, "[GODIS]", log.LstdFlags)
+	pool := newPool(":6379", "", logger)
 
-	logger := log.New(out, "[GODIS] ", log.LstdFlags)
 	return &Godis{pool, nil, logger}
 }

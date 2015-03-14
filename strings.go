@@ -11,7 +11,6 @@ func (g *Godis) Append(key string, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("APPEND", key, value)
-	g.log.Printf("APPEND %s \"%s\"\n", key, value)
 
 	// ignore return value (new string length) for now, may not be useful
 	if retval, err := redis.Int(reply, err); err != nil {
@@ -33,7 +32,6 @@ func (g *Godis) BitCount(args ...interface{}) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("BITCOUNT", args...)
-	g.log.Printf("BITCOUNT %v", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -55,7 +53,6 @@ func (g *Godis) bitop(operation string, args ...interface{}) int {
 	args = append(op, args...)
 
 	reply, err := conn.Do("BITOP", args...)
-	g.log.Printf("BITOP %v", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -112,7 +109,6 @@ func (g *Godis) BitPos(args ...interface{}) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("BITPOS", args...)
-	g.log.Printf("BITPOS %v", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -132,7 +128,6 @@ func (g *Godis) Decr(key string) int64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("DECR", key)
-	g.log.Printf("DECR %s\n", key)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
@@ -152,7 +147,6 @@ func (g *Godis) DecrBy(key string, decrement int) int64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("DECRBY", key, decrement)
-	g.log.Printf("DECRBY %s %d\n", key, decrement)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
@@ -172,7 +166,6 @@ func (g *Godis) Get(key string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("GET", key)
-	g.log.Printf("GET %s\n", key)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -192,7 +185,6 @@ func (g *Godis) GetBit(key string, offset int) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("GETBIT", key, offset)
-	g.log.Printf("GETBIT %s %d\n", key, offset)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -211,7 +203,6 @@ func (g *Godis) GetRange(key string, start, end int) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("GETRANGE", key, start, end)
-	g.log.Printf("GETRANGE %s %d %d\n", key, start, end)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -230,7 +221,6 @@ func (g *Godis) GetSet(key, value string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("GETSET", key, value)
-	g.log.Printf("GETSET %s \"%s\"\n", key, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -250,7 +240,6 @@ func (g *Godis) Incr(key string) int64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("INCR", key)
-	g.log.Printf("INCR %s\n", key)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
@@ -270,7 +259,6 @@ func (g *Godis) IncrBy(key string, increment int) int64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("INCRBY", key, increment)
-	g.log.Printf("INCRBY %s %d\n", key, increment)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
@@ -289,7 +277,6 @@ func (g *Godis) IncrByFloat(key string, value float64) float64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("INCRBYFLOAT", key, value)
-	g.log.Printf("INCRBYFLOAT %s \"%f\"\n", key, value)
 
 	if retval, err := redis.Float64(reply, err); err != nil {
 		// handle error
@@ -308,7 +295,6 @@ func (g *Godis) MGet(keys ...interface{}) []string {
 	defer conn.Close()
 
 	reply, err := conn.Do("MGET", keys...)
-	g.log.Printf("MGET %v", keys)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -327,7 +313,6 @@ func (g *Godis) MSet(keyvals ...interface{}) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("MSET", keyvals...)
-	g.log.Printf("MSET %v", keyvals)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -346,7 +331,6 @@ func (g *Godis) MSetNX(keyvals ...interface{}) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("MSETNX", keyvals...)
-	g.log.Printf("MSETNX %v", keyvals)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -365,7 +349,6 @@ func (g *Godis) PSetEX(key string, millis int, value string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("PSETEX", key, millis, value)
-	g.log.Printf("PSETEX %s %d \"%s\"\n", key, millis, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -384,7 +367,6 @@ func (g *Godis) Set(key string, value string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("SET", key, value)
-	g.log.Printf("SET %s \"%s\"\n", key, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -404,7 +386,6 @@ func (g *Godis) SetBit(key string, offset, value int) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("SETBIT", key, offset, value)
-	g.log.Printf("SETBIT %s %d %d\n", key, offset, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -423,7 +404,6 @@ func (g *Godis) SetEX(key string, seconds int, value string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("SETEX", key, seconds, value)
-	g.log.Printf("SETEX %s %d \"%s\"\n", key, seconds, value)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -442,7 +422,6 @@ func (g *Godis) SetNX(key string, value string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("SETNX", key, value)
-	g.log.Printf("SETNX %s \"%s\"\n", key, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -461,7 +440,6 @@ func (g *Godis) SetRange(key string, offset int, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("SETRANGE", key, offset, value)
-	g.log.Printf("SETRANGE %s %d \"%s\"\n", key, offset, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -480,7 +458,6 @@ func (g *Godis) Strlen(key string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("STRLEN", key)
-	g.log.Printf("STRLEN %s\n", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error

@@ -15,7 +15,6 @@ func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 
 	keys = append(keys, timeout)
 	reply, err := conn.Do("BLPOP", keys...)
-	g.log.Printf("BLPOP %v\n", keys)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -39,7 +38,6 @@ func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
 
 	keys = append(keys, timeout)
 	reply, err := conn.Do("BRPOP", keys...)
-	g.log.Printf("BRPOP %v\n", keys)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -59,7 +57,6 @@ func (g *Godis) BRPopLPush(source, destination string, timeout int) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("BRPOPLPUSH", source, destination, timeout)
-	g.log.Printf("BRPOPLPUSH %s %s %d\n", source, destination, timeout)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -78,7 +75,6 @@ func (g *Godis) LIndex(key string, index int) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("LINDEX", key, index)
-	g.log.Printf("LINDEX %s %d\n", key, index)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -96,7 +92,6 @@ func (g *Godis) linsert(key, location, pivot, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("LINSERT", key, location, pivot, value)
-	g.log.Printf("LINSERT %s %s %s %s\n", key, location, pivot, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -127,7 +122,6 @@ func (g *Godis) LLen(key string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("LLEN", key)
-	g.log.Printf("LLEN %s\n", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -146,7 +140,6 @@ func (g *Godis) LPop(key string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("LPOP", key)
-	g.log.Printf("LPOP %s\n", key)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -169,7 +162,6 @@ func (g *Godis) LPush(key string, values ...interface{}) int {
 	keyarg[0] = key
 	args := append(keyarg, values...)
 	reply, err := conn.Do("LPUSH", args...)
-	g.log.Printf("LPUSH %v\n", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -189,7 +181,6 @@ func (g *Godis) LPushX(key, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("LPUSHX", key, value)
-	g.log.Printf("LPUSHX %s %s\n", key, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -208,7 +199,6 @@ func (g *Godis) LRange(key string, start, stop int) []string {
 	defer conn.Close()
 
 	reply, err := conn.Do("LRANGE", key, start, stop)
-	g.log.Printf("LRANGE %s %d %d\n", key, start, stop)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -227,7 +217,6 @@ func (g *Godis) LRem(key string, count int, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("LREM", key, count, value)
-	g.log.Printf("LREM %s %d %s\n", key, count, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -246,7 +235,6 @@ func (g *Godis) LSet(key string, index int, value string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("LSET", key, index, value)
-	g.log.Printf("LSET %s %d %s\n", key, index, value)
 
 	if retval, err := redis.Bool(reply, err); err != nil {
 		// handle error
@@ -265,7 +253,6 @@ func (g *Godis) LTrim(key string, start, stop int) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("LTRIM", key, start, stop)
-	g.log.Printf("LTRIM %s %d %d\n", key, start, stop)
 
 	if retval, err := redis.Bool(reply, err); err != nil {
 		// handle error
@@ -284,7 +271,6 @@ func (g *Godis) RPop(key string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("RPOP", key)
-	g.log.Printf("RPOP %s\n", key)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -304,7 +290,6 @@ func (g *Godis) RPopLPush(source, destination string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("RPOPLPUSH", source, destination)
-	g.log.Printf("RPOPLPUSH %s %s\n", source, destination)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -327,7 +312,6 @@ func (g *Godis) RPush(key string, values ...interface{}) int {
 	keyarg[0] = key
 	args := append(keyarg, values...)
 	reply, err := conn.Do("RPUSH", args...)
-	g.log.Printf("RPUSH %v\n", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -347,7 +331,6 @@ func (g *Godis) RPushX(key, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("RPUSHX", key, value)
-	g.log.Printf("RPUSHX %s %s\n", key, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error

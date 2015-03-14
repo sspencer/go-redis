@@ -14,12 +14,11 @@ func (g *Godis) HDel(key string, fields ...interface{}) int {
 	keyarg[0] = key
 	args := append(keyarg, fields...)
 	reply, err := conn.Do("HDEL", args...)
-	g.log.Printf("HDEL %v\n", args)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
 		g.Error = err
-		g.log.Printf("Error HDel %s\n", err)
+		g.log.Printf("Error HDEL %s\n", err)
 		return 0
 	} else {
 		g.Error = nil
@@ -33,7 +32,6 @@ func (g *Godis) HExists(key, field string) bool {
 	defer conn.Close()
 
 	reply, err := conn.Do("HEXISTS", key, field)
-	g.log.Printf("HEXISTS %s %s\n", key, field)
 
 	if retval, err := redis.Bool(reply, err); err != nil {
 		// handle error
@@ -52,7 +50,6 @@ func (g *Godis) HGet(key, field string) string {
 	defer conn.Close()
 
 	reply, err := conn.Do("HGET", key, field)
-	g.log.Printf("HGET %s %s\n", key, field)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -72,7 +69,6 @@ func (g *Godis) HGetAll(key string) map[string]string {
 	defer conn.Close()
 
 	reply, err := conn.Do("HGETALL", key)
-	g.log.Printf("HGETALL %s\n", key)
 
 	if retval, err := redis.StringMap(reply, err); err != nil {
 		// handle error
@@ -93,7 +89,6 @@ func (g *Godis) HIncrBy(key, field string, increment int) int64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("HINCRBY", key, field, increment)
-	g.log.Printf("HINCRBY %s %s %d\n", key, field, increment)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
 		// handle error
@@ -112,7 +107,6 @@ func (g *Godis) HIncrByFloat(key, field string, value float64) float64 {
 	defer conn.Close()
 
 	reply, err := conn.Do("HINCRBYFLOAT", key, field, value)
-	g.log.Printf("HINCRBYFLOAT %s %s \"%f\"\n", key, field, value)
 
 	if retval, err := redis.Float64(reply, err); err != nil {
 		// handle error
@@ -131,7 +125,6 @@ func (g *Godis) HKeys(key string) []string {
 	defer conn.Close()
 
 	reply, err := conn.Do("HKEYS", key)
-	g.log.Printf("HKEYS %s\n", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -150,7 +143,6 @@ func (g *Godis) HLen(key string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("HLen", key)
-	g.log.Printf("HLen %s\n", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -172,7 +164,6 @@ func (g *Godis) HMGet(key string, fields ...interface{}) []string {
 	keyarg[0] = key
 	args := append(keyarg, fields...)
 	reply, err := conn.Do("HMGET", args...)
-	g.log.Printf("HMGET %v\n", args)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
@@ -194,7 +185,6 @@ func (g *Godis) HMSet(key string, fieldvals ...interface{}) bool {
 	keyarg[0] = key
 	args := append(keyarg, fieldvals...)
 	reply, err := conn.Do("HMSET", args...)
-	g.log.Printf("HMSET %v\n", args)
 
 	if retval, err := redis.String(reply, err); err != nil {
 		// handle error
@@ -216,7 +206,6 @@ func (g *Godis) HSet(key, field, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("HSET", key, field, value)
-	g.log.Printf("HSET %s %s %s\n", key, field, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -238,7 +227,6 @@ func (g *Godis) HSetNX(key, field, value string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("HSETNX", key, field, value)
-	g.log.Printf("HSETNX %s %s %s\n", key, field, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -259,7 +247,6 @@ func (g *Godis) HStrlen(key, field string) int {
 	defer conn.Close()
 
 	reply, err := conn.Do("HSTRLEN", key, field)
-	g.log.Printf("HSTRLEN %s %s\n", key, field)
 
 	if retval, err := redis.Int(reply, err); err != nil {
 		// handle error
@@ -279,7 +266,6 @@ func (g *Godis) HVals(key string) []string {
 	defer conn.Close()
 
 	reply, err := conn.Do("HVALS", key)
-	g.log.Printf("HVALS %s\n", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
 		// handle error
