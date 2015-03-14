@@ -21,8 +21,6 @@ func (g *Godis) HDel(key string, fields ...interface{}) int {
 	reply, err := conn.Do("HDEL", args...)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HDEL %s\n", err)
 		return 0
 	} else {
 		return retval
@@ -42,8 +40,6 @@ func (g *Godis) HExists(key, field string) bool {
 	reply, err := conn.Do("HEXISTS", key, field)
 
 	if retval, err := redis.Bool(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HEXISTS %s\n", err)
 		return false
 	} else {
 		return retval
@@ -63,8 +59,6 @@ func (g *Godis) HGet(key, field string) string {
 	reply, err := conn.Do("HGET", key, field)
 
 	if retval, err := redis.String(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HGET %s\n", err)
 		return NIL
 	} else {
 		return retval
@@ -85,8 +79,6 @@ func (g *Godis) HGetAll(key string) map[string]string {
 	reply, err := conn.Do("HGETALL", key)
 
 	if retval, err := redis.StringMap(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HGETALL %s\n", err)
 		return make(map[string]string)
 
 	} else {
@@ -108,8 +100,6 @@ func (g *Godis) HIncrBy(key, field string, increment int) int64 {
 	reply, err := conn.Do("HINCRBY", key, field, increment)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HINCRBY %s\n", err)
 		return math.MaxInt64
 	} else {
 		return retval
@@ -129,8 +119,6 @@ func (g *Godis) HIncrByFloat(key, field string, value float64) float64 {
 	reply, err := conn.Do("HINCRBYFLOAT", key, field, value)
 
 	if retval, err := redis.Float64(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HINCRBYFLOAT %s\n", err)
 		return math.MaxFloat64
 	} else {
 		return retval
@@ -150,8 +138,6 @@ func (g *Godis) HKeys(key string) []string {
 	reply, err := conn.Do("HKEYS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HKEYS %s\n", err)
 		return []string{}
 	} else {
 		return retval
@@ -171,8 +157,6 @@ func (g *Godis) HLen(key string) int {
 	reply, err := conn.Do("HLen", key)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HLen %s\n", err)
 		return 0
 	} else {
 		return retval
@@ -195,8 +179,6 @@ func (g *Godis) HMGet(key string, fields ...interface{}) []string {
 	reply, err := conn.Do("HMGET", args...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HMGET %s\n", err)
 		return []string{}
 	} else {
 		return retval
@@ -219,8 +201,6 @@ func (g *Godis) HMSet(key string, fieldvals ...interface{}) bool {
 	reply, err := conn.Do("HMSET", args...)
 
 	if retval, err := redis.String(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HMSET %s\n", err)
 		return false
 	} else {
 		return retval == OK
@@ -243,8 +223,6 @@ func (g *Godis) HSet(key, field, value string) int {
 	reply, err := conn.Do("HSET", key, field, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HSET %s\n", err)
 		return -1
 	} else {
 		return retval
@@ -267,34 +245,11 @@ func (g *Godis) HSetNX(key, field, value string) int {
 	reply, err := conn.Do("HSETNX", key, field, value)
 
 	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HSETNX %s\n", err)
 		return -1
 	} else {
 		return retval
 	}
 }
-
-/*
-Since 3.2.0
-// HStrlen gets the length of the value of a hash field.
-func (g *Godis) HStrlen(key, field string) int {
-	conn := g.pool.Get()
-	defer conn.Close()
-
-	reply, err := conn.Do("HSTRLEN", key, field)
-
-	if retval, err := redis.Int(reply, err); err != nil {
-		// handle error
-		g.Error = err
-		g.log.Printf("Error HSTRLEN %s\n", err)
-		return -1
-	} else {
-		g.Error = nil
-		return retval
-	}
-}
-*/
 
 // HVals gets all the field values in a hash
 func (g *Godis) HVals(key string) []string {
@@ -309,8 +264,6 @@ func (g *Godis) HVals(key string) []string {
 	reply, err := conn.Do("HVALS", key)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		// handle error
-		g.log.Printf("Error HVALS %s\n", err)
 		return []string{}
 	} else {
 		return retval
