@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/sspencer/go-redis"
 	"os"
-	"time"
 )
 
 func main() {

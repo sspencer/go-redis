@@ -1,7 +1,6 @@
 package godis
 
 import (
-	"github.com/garyburd/redigo/redis"
 	"strconv"
 )
 
@@ -20,40 +19,18 @@ func memberScores(values []string) []ScoreMember {
 	return members
 }
 
+// ZCard returns the number of members in a sorted set.
+func (g *Godis) ZCard(key string) int64 {
+	return g.cmdInt("ZCARD", key)
+}
+
 // ZRange returns a range of members in a sorted set, by index
 func (g *Godis) ZRange(key string, start, stop int) []string {
-	var conn redis.Conn
-	if g.pooled {
-		conn = g.pool.Get()
-		defer conn.Close()
-	} else {
-		conn = g.conn
-	}
-
-	reply, err := conn.Do("ZRANGE", key, start, stop)
-
-	if retval, err := redis.Strings(reply, err); err != nil {
-		return EmptyStrings
-	} else {
-		return retval
-	}
+	return g.cmdStrings("ZRANGE", start, stop)
 }
 
 // ZRange returns a range of members and their scores in a sorted set, by index.
 func (g *Godis) ZRangeWithScores(key string, start, stop int) []ScoreMember {
-	var conn redis.Conn
-	if g.pooled {
-		conn = g.pool.Get()
-		defer conn.Close()
-	} else {
-		conn = g.conn
-	}
-
-	reply, err := conn.Do("ZRANGE", key, start, stop, "WITHSCORES")
-
-	if retval, err := redis.Strings(reply, err); err != nil {
-		return EmptyScoreMembers
-	} else {
-		return memberScores(retval)
-	}
+	retval := g.cmdStrings("ZRANGE", key, start, stop, "WITHSCORES")
+	return memberScores(retval)
 }

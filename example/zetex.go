@@ -10,4 +10,5 @@ func main() {
 	redis := godis.NewGodisConn(":6379", "", os.Stderr)
 	fmt.Println("ZRANGE:", redis.ZRange("myzet", 0, -1))
 	fmt.Println("ZRANGE WITHSCORES:", redis.ZRangeWithScores("myzet", 0, -1))
+	fmt.Println("ZCARD:", redis.ZCard("myzet"))
 }
