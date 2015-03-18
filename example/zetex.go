@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	redis := godis.NewGodisConn(":6379", "", os.Stderr)
+	redis := godis.NewGodisConn(":6379", "", 0, os.Stderr)
 	fmt.Println("ZRANGE:", redis.ZRange("myzet", 0, -1))
 	fmt.Println("ZRANGE WITHSCORES:", redis.ZRangeWithScores("myzet", 0, -1))
 	fmt.Println("ZCARD:", redis.ZCard("myzet"))

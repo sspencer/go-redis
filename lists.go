@@ -5,8 +5,10 @@ package godis
 // You may pass in more than 1 key and BLPop returns an element
 // from the first list with an available item.  Specify timeout
 // in seconds.   Returns (godis.NIL, godis.NIL) on timeout or error.
-func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
-	return g.cmdStringString("BLPOP", args1(timeout, keys...)...)
+// NOTE: argument order is: BLPop(key1 [, key2, key3...], timeout)
+// Minimum is 1 key and timeout is mandatory.
+func (g *Godis) BLPop(args ...interface{}) (string, string) {
+	return g.cmdStringString("BLPOP", args...)
 }
 
 // BRPop removes and gets the last element in a list or blocks
@@ -14,8 +16,10 @@ func (g *Godis) BLPop(timeout int, keys ...interface{}) (string, string) {
 // You may pass in more than 1 key and BRPop returns an element
 // from the first list with an available item.  Specify timeout
 // in seconds.  Returns (godis.NIL, godis.NIL) on timeout or error.
-func (g *Godis) BRPop(timeout int, keys ...interface{}) (string, string) {
-	return g.cmdStringString("BRPOP", args1(timeout, keys...)...)
+// NOTE: argument order is: BRPop(key1 [, key2, key3...], timeout)
+// Minimum is 1 key and timeout is mandatory.
+func (g *Godis) BRPop(args ...interface{}) (string, string) {
+	return g.cmdStringString("BRPOP", args...)
 }
 
 // BRPopLPush pops a value from the source list, pushes it onto destination and

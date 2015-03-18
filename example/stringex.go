@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	redis := godis.NewGodisConn(":6379", "", os.Stderr)
+	redis := godis.NewGodisConn(":6379", "", 0, os.Stderr)
 	redis.Set("message2", fmt.Sprintf("%v", time.Now()))
 	redis.Append("message1", "!")
 	fmt.Printf("Message1: %s\nMessage2: %s\n", redis.Get("message1"), redis.Get("message2"))

@@ -76,3 +76,38 @@ func (g *Godis) ZRevRangeByLex(key, max, min string) []string {
 func (g *Godis) ZRevRangeByLexLimit(key, max, min, string, offset, count int) []string {
 	return g.cmdStrings("ZRANGEBYLEX", key, max, min, "LIMIT", offset, count)
 }
+
+// ZRangeByScore returns a range of members in a sorted set, by score.
+func (g *Godis) ZRangeByScore(key, min, max string) []string {
+	return g.cmdStrings("ZRANGEBYSCORE", key, min, max)
+}
+
+// ZRangeByScoreLimit returns a range of members in a sorted set, by score,
+// with LIMIT.
+func (g *Godis) ZRangeByScoreLimit(key, min, max string, offset, count int) []string {
+	return g.cmdStrings("ZRANGEBYSCORE", key, min, max, "LIMIT", offset, count)
+}
+
+// ZRangeByScoreWithScores return a range of members and their score in a sorted set,
+// by score.
+func (g *Godis) ZRangeByScoreWithScores(key, min, max string) []ScoreMember {
+	retval := g.cmdStrings("ZRANGEBYSCORE", key, min, max, "WITHSCORES")
+	return memberScores(retval)
+}
+
+// ZRangeByScoreWithScoresLimit returns a range of members and their score in a sorted set,
+// by score, with LIMIT.
+func (g *Godis) ZRangeByScoreWithScoresLimit(key, min, max string, offset, count int) []ScoreMember {
+	retval := g.cmdStrings("ZRANGEBYSCORE", key, min, max, "WITHSCORES", "LIMIT", offset, count)
+	return memberScores(retval)
+}
+
+// ZRank determines the index of a member in a sorted set.
+func (g *Godis) ZRank(key, member string) int64 {
+	return g.cmdInt("ZRANK", key, member)
+}
+
+// ZRem removes one or more members from a sorted set.
+func (g *Godis) ZRem(key string, members ...interface{}) int64 {
+	return g.cmdInt("ZREM", args1(key, members...)...)
+}

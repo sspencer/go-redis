@@ -46,6 +46,7 @@ func newDialer(server, password string, logger *log.Logger) dialer {
 		if err != nil {
 			return nil, err
 		}
+
 		if len(password) > 0 {
 			if _, err := c.Do("AUTH", password); err != nil {
 				c.Close()
@@ -83,7 +84,7 @@ func NewGodisPool(server, password string, w io.Writer) *Godis {
 	return &Godis{true, nil, pool, logger}
 }
 
-func NewGodisConn(server, password string, w io.Writer) *Godis {
+func NewGodisConn(server, password string, dbIndex int, w io.Writer) *Godis {
 
 	logger := log.New(w, "", log.LstdFlags)
 	dial := newDialer(server, password, logger)
@@ -91,6 +92,15 @@ func NewGodisConn(server, password string, w io.Writer) *Godis {
 	if err != nil {
 		panic(err)
 	}
+
+	// dbIndex is 0 by default, so only try to change if it's different
+	if dbIndex > 0 {
+		_, err = conn.Do("SELECT", dbIndex)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	return &Godis{false, conn, nil, logger}
 }
 
@@ -101,21 +111,10 @@ func args1(v1 interface{}, values ...interface{}) []interface{} {
 	return args
 }
 
-func args2(v1, v2 interface{}, values ...interface{}) []interface{} {
-	args := make([]interface{}, 2)
-	args[0] = v1
-	args[1] = v2
-	args = append(args, values...)
-	return args
-}
-
-func args3(v1, v2, v3 interface{}, values ...interface{}) []interface{} {
-	args := make([]interface{}, 1)
-	args[0] = v1
-	args[1] = v2
-	args[2] = v3
-	args = append(args, values...)
-	return args
+func (g *Godis) Close() {
+	if !g.pooled {
+		g.conn.Close()
+	}
 }
 
 // Reusuable redis function that matches pattern of sending a

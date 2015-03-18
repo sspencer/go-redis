@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	redis := godis.NewGodisConn(":6379", "", os.Stderr)
+	redis := godis.NewGodisConn(":6379", "", 0, os.Stderr)
 	fmt.Println("HGET:", redis.HGet("track123", "title"))
 	fmt.Println("HDEL:", redis.HDel("track123", "these", "do", "not", "exist"))
 	fmt.Println("HEXISTS:", redis.HExists("track123", "artist"))

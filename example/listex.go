@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	redis := godis.NewGodisConn(":6379", "", os.Stderr)
-	// key, val := redis.BLPop(60, "list1", "list2")
+	redis := godis.NewGodisConn(":6379", "", 0, os.Stderr)
+	// key, val := redis.BLPop("list1", "list2", 60)
 	// fmt.Println("BLPOP key:", key, " val:", val)
 	// fmt.Println("BRPOPLPUSH:", redis.BRPopLPush("list1", "list2", 2))
 	// fmt.Println("LINSERT:", redis.LInsertBefore("list2", "four", "five"))
