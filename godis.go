@@ -5,13 +5,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"io"
 	"log"
-	"math"
 	"time"
 )
 
 const (
-	OK  = "OK"
-	NIL = "(*GODIS NIL TOKEN*)"
+	OK = "OK"
 )
 
 type Godis struct {
@@ -19,6 +17,7 @@ type Godis struct {
 	conn   redis.Conn
 	pool   *redis.Pool
 	log    *log.Logger
+	err    error
 }
 
 type ScoreMember struct {
@@ -30,12 +29,16 @@ func (m ScoreMember) String() string {
 	return fmt.Sprintf("(%s:%0.2f)", m.member, m.score)
 }
 
-// When a Redis call has not results, return a shared empty variable.
+// When a Redis call has no results or there's an error,
+// return a shared empty variable.
 var (
-	EmptyValues       = make([]interface{}, 0)
-	EmptyStrings      = []string{}
-	EmptyScoreMembers = []ScoreMember{}
-	EmptyStringMap    = make(map[string]string)
+	EmptyInt          int64 = 0
+	EmptyFloat              = 0.0
+	EmptyString             = ""
+	EmptyValues             = make([]interface{}, 0)
+	EmptyStrings            = []string{}
+	EmptyScoreMembers       = []ScoreMember{}
+	EmptyStringMap          = make(map[string]string)
 )
 
 type dialer func() (redis.Conn, error)
@@ -81,7 +84,7 @@ func NewGodisPool(server, password string, w io.Writer) *Godis {
 	logger := log.New(w, "", log.LstdFlags)
 	pool := newPool(server, password, logger)
 
-	return &Godis{true, nil, pool, logger}
+	return &Godis{true, nil, pool, logger, nil}
 }
 
 func NewGodisConn(server, password string, dbIndex int, w io.Writer) *Godis {
@@ -101,7 +104,7 @@ func NewGodisConn(server, password string, dbIndex int, w io.Writer) *Godis {
 		}
 	}
 
-	return &Godis{false, conn, nil, logger}
+	return &Godis{false, conn, nil, logger, nil}
 }
 
 func args1(v1 interface{}, values ...interface{}) []interface{} {
@@ -118,7 +121,7 @@ func (g *Godis) Close() {
 }
 
 // Reusuable redis function that matches pattern of sending a
-// command and receiving an int.  Returns math.maxInt64 on error.
+// command and receiving an int.
 func (g *Godis) cmdInt(cmd string, values ...interface{}) int64 {
 	var conn redis.Conn
 	if g.pooled {
@@ -131,7 +134,8 @@ func (g *Godis) cmdInt(cmd string, values ...interface{}) int64 {
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.Int64(reply, err); err != nil {
-		return math.MaxInt64
+		g.err = err
+		return EmptyInt
 	} else {
 		return retval
 	}
@@ -151,7 +155,8 @@ func (g *Godis) cmdFloat(cmd string, values ...interface{}) float64 {
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.Float64(reply, err); err != nil {
-		return math.MaxFloat64
+		g.err = err
+		return EmptyFloat
 	} else {
 		return retval
 	}
@@ -171,7 +176,8 @@ func (g *Godis) cmdString(cmd string, values ...interface{}) string {
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.String(reply, err); err != nil {
-		return NIL
+		g.err = err
+		return EmptyString
 	} else {
 		return retval
 	}
@@ -191,6 +197,7 @@ func (g *Godis) cmdMap(cmd string, values ...interface{}) map[string]string {
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.StringMap(reply, err); err != nil {
+		g.err = err
 		return EmptyStringMap
 	} else {
 		return retval
@@ -211,7 +218,8 @@ func (g *Godis) cmdStringString(cmd string, values ...interface{}) (string, stri
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
-		return NIL, NIL
+		g.err = err
+		return EmptyString, EmptyString
 	} else {
 		return retval[0], retval[1]
 	}
@@ -231,6 +239,7 @@ func (g *Godis) cmdStrings(cmd string, values ...interface{}) []string {
 	reply, err := conn.Do(cmd, values...)
 
 	if retval, err := redis.Strings(reply, err); err != nil {
+		g.err = err
 		return EmptyStrings
 	} else {
 		return retval

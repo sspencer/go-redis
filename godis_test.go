@@ -55,7 +55,7 @@ func newTestconn() *testconn {
 		panic(errors.New("database #9 is not empty, test can not continue"))
 	}
 
-	return &testconn{&Godis{false, conn, nil, logger}}
+	return &testconn{&Godis{false, conn, nil, logger, nil}}
 }
 
 // to just run this file: go test -run TestHash
@@ -63,13 +63,24 @@ func TestHashCommands(t *testing.T) {
 	r := newTestconn()
 	defer r.Close()
 	key := "track123"
+	nope := "nope:not:a:field"
 	artist := "Hem"
 	title := "Not California"
 	album := "Funnel Cloud"
 	plays := 21
 	share := 0.5
 
-	_ = r.HMSet(key, "artist", artist, "title", title, "album", album, "plays", plays, "share", share, "x1", 1, "x2", 2)
+	fields := []string{"artist", "title", "album", "plays", "share"}
+	values := []interface{}{artist, title, album, plays, share}
+	_ = r.HMSet(key,
+		fields[0], values[0], // artist
+		fields[1], values[1], // title
+		fields[2], values[2], // album
+		fields[3], values[3], // plays
+		fields[4], values[4], // share
+		"x1", 1,
+		"x2", 2)
+
 	f := r.HMGet(key, "artist", "title")
 	if len(f) != 2 || f[0] != artist || f[1] != title {
 		t.Fatal("Something wrong with HMSet or HMGet")
@@ -79,12 +90,42 @@ func TestHashCommands(t *testing.T) {
 		t.Fatal("Count not correct after HDel:", cnt)
 	}
 
-	if !r.HExists(key, "artist") || r.HExists(key, "nope:no:noteven") {
+	if !r.HExists(key, "artist") || r.HExists(key, nope) {
 		t.Fatal("HExists not working")
+	}
+
+	if r.HGet(key, "artist") != artist || r.HGet(key, nope) != EmptyString {
+		t.Fatal("HGet not working")
+	}
+
+	fv := r.HGetAll(key)
+	if len(fv) != len(fields) {
+		t.Fatalf("HGetAll did not return correct number of fieldvals %d / %d\n", len(fv), len(fields))
+	}
+
+	fmt.Printf("%#v\n", fv)
+
+	for index, field := range fields {
+
+		if r1, ok := fv[field]; ok {
+			if r1 != fmt.Sprintf("%v", values[index]) {
+				t.Fatalf("HGetAll %s value not returned: '%s' == '%s'??\n", field, r1, values[index])
+			}
+		} else {
+			t.Fatalf("HGetAll %s not returned\n", field)
+		}
+	}
+
+	if r.HIncrBy(key, "plays", 10) != 31 {
+		t.Fatalf("HIncrBy not working")
+	}
+
+	if r.HIncrBy(key, "plays", -10) != 21 {
+		t.Fatalf("HIncrBy not working")
 	}
 }
 
-func TestListCommands(t *testing.T) {
+func xTestListCommands(t *testing.T) {
 	r := newTestconn()
 	defer r.Close()
 

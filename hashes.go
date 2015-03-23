@@ -21,13 +21,12 @@ func (g *Godis) HGetAll(key string) map[string]string {
 	return g.cmdMap("HGETALL", key)
 }
 
-// HIncrBy increments the integer value of a hash field by the given number.  Returns math.MinInt64
-// on error.
+// HIncrBy increments the integer value of a hash field by the given number.
 func (g *Godis) HIncrBy(key, field string, increment int) int64 {
 	return g.cmdInt("HINCRBY", key, field, increment)
 }
 
-// HIncrByFloat increments the float value of a key by the given amount.  Return math.MaxFloat64 on error.
+// HIncrByFloat increments the float value of a key by the given amount.
 func (g *Godis) HIncrByFloat(key, field string, increment float64) float64 {
 	return g.cmdFloat("HINCRBYFLOAT", key, field, increment)
 }
@@ -55,7 +54,6 @@ func (g *Godis) HMSet(key string, fieldvals ...interface{}) bool {
 // HSet sets the string value of a hash field.
 // Returns 1 if field is a new field in the hash and value was set.
 // Returns 0 if field already exists in the hash and the value was updated.
-// Returns -1 on error.
 func (g *Godis) HSet(key, field, value string) int64 {
 	return g.cmdInt("HSET", key, field, value)
 }
@@ -63,7 +61,6 @@ func (g *Godis) HSet(key, field, value string) int64 {
 // HSetNX sets the string value of a hash field if the field does not already exist.
 // Returns 1 if field is a new field in the hash and value was set.
 // Returns 0 if field already exists in the hash and no operation was performed.
-// Returns -1 on error.
 func (g *Godis) HSetNX(key, field, value string) int64 {
 	return g.cmdInt("HSETNX", key, field, value)
 }
